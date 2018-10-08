@@ -157,11 +157,11 @@ class Application {
 
                 // If the query did not run successfully, add an error message to the list
             if ($result === FALSE) {//do something
-              print_r($result);
+              print_r(json_decode($result, true));
               $errors[] = "failed to register";
             } else {
               echo "Registration successful!";
-              print_r($result);
+              print_r(json_decode($result, true));
             }
         } else {
             $this->auditlog("register validation error", $errors);
