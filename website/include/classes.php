@@ -143,13 +143,17 @@ class Application {
               "email" => $email,
               "registrationcode" => $registrationcode
             );
-            /*$curl = curl_init();
+            $curl = curl_init();
             curl_setopt($curl, CURLOPT_POST, 1);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
             curl_setopt($curl, CURLOPT_URL, $url);
-            */
+            curl_setopt($curl, CURLOPT_HTTPHEADER,'Content-Type: application/json');
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            $result = curl_exec($curl);
+
               // use key 'http' even if you send the request to https://...
-            $options = array(
+            /*$options = array(
               'http' => array(
                 'header'  => "Content-type: application/json\r\n",
                 'method'  => 'POST',
@@ -157,7 +161,7 @@ class Application {
               )
             );
             $context  = stream_context_create($options);
-            $result = file_get_contents($url, false, $context);
+            $result = file_get_contents($url, false, $context); */
 
                 // If the query did not run successfully, add an error message to the list
             if ($result === FALSE) {//do something
@@ -167,6 +171,7 @@ class Application {
               echo "Registration successful!";
               var_dump(json_decode($result, true));
             }
+            curl_close($curl);
         } else {
             $this->auditlog("register validation error", $errors);
         }
