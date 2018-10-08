@@ -32,8 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	if ($result == TRUE) {
 
 		// Redirect the user to the login page on success
-	    header("Location: login.php?register=success");
-		exit();
+	    //header("Location: login.php?register=success");
+		//exit();
 
 	}
 
@@ -51,15 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	<link rel="stylesheet" href="css/style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<!--1. Display Errors if any exists 
+<!--1. Display Errors if any exists
 	2. Display Registration form (sticky):  Username, Password, Question, and Answer -->
 <body>
 	<?php include 'include/header.php'; ?>
-	
+
 	<h2>Register</h2>
-	
+
 	<?php include('include/messages.php'); ?>
-		
+
 	<div>
 		<form action="register.php" method="post">
 			<input type="text" name="username" id="username" placeholder="Pick a username" value="<?php echo $username; ?>" />
