@@ -111,7 +111,7 @@ class Application {
                 $errors[] = "Not a Georgia Southern email address";
             }
     }
-    /*
+
     // Registers a new user
     public function register($username, $password, $email, $registrationcode, &$errors) {
 
@@ -133,7 +133,7 @@ class Application {
 
             // Create a new user ID
             $userid = bin2hex(random_bytes(16));
- 			$url = "Replace me with the URL to your Web API endpoint!!!";
+ 			$url = "https://veewy5p3g7.execute-api.us-east-1.amazonaws.com/Alpha";
 			$data = array(
 				'userid'=>$userid,
 				'username'=>$username,
@@ -178,78 +178,6 @@ class Application {
 
 			curl_close($ch);
          } else {
-            $this->auditlog("register validation error", $errors);
-        }
-
-        // Return TRUE if there are no errors, otherwise return FALSE
-        if (sizeof($errors) == 0){
-            return TRUE;
-        } else {
-            return FALSE;
-        }
-    }
-	*/
-    // Registers a new user
-    public function register($username, $password, $email, $registrationcode, &$errors) {
-
-        $this->auditlog("register", "attempt: $username, $email, $registrationcode");
-
-        // Validate the user input
-        $this->validateUsername($username, $errors);
-        $this->validatePassword($password, $errors);
-        $this->validateEmail($email, $errors);
-        if (empty($registrationcode)) {
-            $errors[] = "Missing registration code";
-        }
-
-        // Only try to insert the data into the database if there are no validation errors
-        if (sizeof($errors) == 0) {
-
-            // Connect to the API
-            $passwordhash = password_hash($password, PASSWORD_DEFAULT);
-
-            // Create a new user ID
-            $userid = bin2hex(random_bytes(16));
-
-              // Connect to the API
-            $url = 'https://veewy5p3g7.execute-api.us-east-1.amazonaws.com/Alpha';
-            $data = array(
-              "userid" => $userid,
-              "username" => $username,
-              "passwordHash" => $passwordhash,
-              "email" => $email,
-              "registrationcode" => $registrationcode
-            );
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_HTTPHEADER,'Content-Type: application/json');
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-            $result = curl_exec($curl);
-
-              // use key 'http' even if you send the request to https://...
-            /*$options = array(
-              'http' => array(
-                'header'  => "Content-type: application/json\r\n",
-                'method'  => 'POST',
-                'content' => http_build_query(json_encode($data))
-              )
-            );
-            $context  = stream_context_create($options);
-            $result = file_get_contents($url, false, $context); */
-
-                // If the query did not run successfully, add an error message to the list
-            if ($result === FALSE) {//do something
-              var_dump($result, true);
-              $errors[] = "failed to register";
-            } else {
-              echo "Registration successful!";
-              var_dump(json_decode($result, true));
-            }
-            curl_close($curl);
-        } else {
             $this->auditlog("register validation error", $errors);
         }
 
