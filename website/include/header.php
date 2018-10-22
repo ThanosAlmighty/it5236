@@ -54,3 +54,4 @@
 		</div>
 		<h1>MusiConvo</h1>
 	</div>
+	<div id="wrapper">

@@ -1,3 +1,4 @@
+</div>
 <p class="footer">Copyright &copy; <?php echo date("Y"); ?> Jonathan Huling </p>
 <?php
 

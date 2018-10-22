@@ -1,8 +1,10 @@
 body {
-	margin: 15px 15px 15px 15px;
+	margin: -22px 0 0 0;
 	background-color: #C0B3A0;
 }
-
+#wrapper{
+	margin: 15px 15px 15px 15px;
+}
 #header{
 	background-color: #22252C;
 	color: #FFFFFF;
