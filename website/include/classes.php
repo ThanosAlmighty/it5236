@@ -755,6 +755,10 @@ class Application {
             $this->auditlog("protect page", "MFA OTP not complete");
             header("Location: otp.php");
             exit();
+          } else {
+            $this->auditlog("protect page", "MFA OTP already completed");
+            header("Location: list.php");
+            exit();
           }
         } else if ($isAdmin)  {
 
