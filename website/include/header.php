@@ -24,6 +24,8 @@
 
 
 ?>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/current_page.js"></script>
 <div id="header">
 		<div class="nav">
 			<a id="index.php" href="index.php">Home</a>
