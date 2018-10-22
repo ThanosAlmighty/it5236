@@ -1621,7 +1621,7 @@ class Application {
         $otp = bin2hex(random_bytes(3));
 
         // Construct a SQL statement to perform the insert operation
-        $sql = "INSERT INTO OTP (otp, sessionid, date) VALUES (:otp, :sessionid, GETDATE())";
+        $sql = "INSERT INTO OTP (otp, sessionid, date) VALUES (:otp, :sessionid, GETDATE());";
 
         // Run the SQL select and capture the result code
         $stmt = $dbh->prepare($sql);
