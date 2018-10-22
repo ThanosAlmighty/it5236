@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 	// Check to see if the login attempt succeeded
 	if ($result != FALSE) {
-		if($app->create_otp($result, $errors)){
+		if($app->create_otp($result['email'], $result['sessionid'], $errors)){
 			header("Location: otp.php");
 			exit();
 		}

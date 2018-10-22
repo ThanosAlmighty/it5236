@@ -607,7 +607,7 @@ class Application {
             $dbh = $this->getConnection();
 
             // Construct a SQL statement to perform the insert operation
-            $sql = "SELECT userid, passwordhash, emailvalidated FROM users " .
+            $sql = "SELECT userid, passwordhash, email, emailvalidated FROM users " .
                 "WHERE username = :username";
 
             // Run the SQL select and capture the result code
@@ -651,6 +651,7 @@ class Application {
                     // Create a new session for this user ID in the database
                     $userid = $row['userid'];
                     $sessionid = $this->newSession($userid, $errors);
+                    $email = $row['email'];
                     $this->auditlog("login", "success: $username, $userid");
 
                 }
@@ -667,7 +668,7 @@ class Application {
 
         // Return TRUE if there are no errors, otherwise return FALSE
         if (sizeof($errors) == 0){
-            return $sessionid;
+            return ['sessionid'=>$sessionid, 'email'=>$email];
         } else {
             return FALSE;
         }
@@ -1610,7 +1611,7 @@ class Application {
     }
 
     //stores a randomly generated OTP in the databse and sends user an email with the same OTP
-    public function create_otp($sessionid, &$errors){
+    public function create_otp($email, $sessionid, &$errors){
 
       if (empty($sessionid)) {
           $errors[] = "Missing sessionid";
