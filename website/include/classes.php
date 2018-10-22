@@ -773,7 +773,7 @@ class Application {
 
             }
 
-
+        }
     }
 
     // Get a list of things from the database and will return the $errors array listing any errors encountered
