@@ -1660,6 +1660,17 @@ class Application {
           return FALSE;
       }
     }
+
+    public function verify_otp($otp, $sessionid){
+      $dbh = $this->getConnection();
+
+  		$sql = "DELETE FROM OTP WHERE otp = :otp AND sessionid = :sessionid";
+
+  		$stmt = $dbh->prepare($sql);
+  		$stmt->bindParam(":otp", $otp);
+  		$stmt->bindParam(":sessionid", $sessionid);
+  		return $stmt->execute();
+    }
 }
 
 

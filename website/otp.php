@@ -20,15 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$errors[] = "Please enter your One Time Password";
 	}
 	if(sizeof($errors) == 0){
-		$dbh = $app->getConnection();
-
-		$sql = "DELETE FROM OTP WHERE otp = :otp AND sessionid = :sessionid";
-
-		$stmt = $dbh->prepare($sql);
-		$stmt->bindParam(":otp", $otp);
-		$stmt->bindParam(":sessionid", $sessionid);
-		$result = $stmt->execute();
-
+		$result = $app->verify_otp($otp, $sessionid);
 		// If the query did not run successfully, add an error message to the list
 		if ($result === FALSE) {
 			$errors[] = "Invalid session/OTP combination";
@@ -41,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	} else{
 		$app->auditlog("OTP", $errors);
 	}
-	$dbh = NULL;
 }
 
 ?>
