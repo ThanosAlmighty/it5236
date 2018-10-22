@@ -17,7 +17,14 @@ div.nav {
 	float: right;
 	padding: 20px;
 }
-
+.nav a{
+	padding: 10px;
+	margin-left: 15px;
+	border: 2px solid #e14658;
+	text-decoration: none;
+	background-color: #22252C;
+	color: #FFFFFF;
+}
 ul.things {
 	padding-left: 10px;
 }
