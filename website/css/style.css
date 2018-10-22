@@ -1,7 +1,5 @@
 body {
-	height: 100%;
-	width: 100%;
-	margin: -22px 0 0 0;
+	margin: 0 0 0 0;
 	background-color: #C0B3A0;
 	background-image: url('../images/Music-Wallpaper-Backgrounds-HD.jpg');
   background-repeat: no-repeat;
@@ -10,8 +8,8 @@ body {
 }
 #wrapper{
 	background-color: #C0B3A0;
-	margin: 0 auto;
-	height: 100%;
+	margin: 95px auto 0 auto;
+	padding: 5px 5px 27% 25px;
 	width: 80%;
 }
 #header{
@@ -19,10 +17,13 @@ body {
 	color: #FFFFFF;
 	width: 100%;
 	margin-top: 0px;
+	position: fixed;
+  left: 0;
+  top: 0;
 }
 
 #header h1{
-	padding: 10px 0 10px 5px;
+	padding: 5px 0 10px 20px;
 }
 
 .footer{
@@ -39,7 +40,7 @@ body {
 
 div.nav {
 	float: right;
-	padding: 20px;
+	padding: 38px;
 }
 .nav a{
 	background-color: #3F3250;
