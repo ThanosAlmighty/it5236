@@ -6,7 +6,8 @@ body {
 #header{
 	background-color: #22252C;
 	color: #FFFFFF;
-	padding-bottom: 15px;
+  margin:0 auto;
+	padding-bottom: 10px;
 }
 
 .footer{
@@ -19,12 +20,12 @@ div.nav {
 	padding: 20px;
 }
 .nav a{
-	padding: 10px;
-	margin-left: 10px;
-	border: 2px solid #e14658;
-	text-decoration: none;
 	background-color: #3F3250;
+	border: 2px solid #e14658;
 	color: #FFFFFF;
+	margin-left: 10px;
+	padding: 10px;
+	text-decoration: none;
 }
 ul.things {
 	padding-left: 10px;
