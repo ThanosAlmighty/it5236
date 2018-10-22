@@ -26,24 +26,24 @@
 ?>
 <div id="header">
 		<div class="nav">
-			<a href="index.php">Home</a>
+			<a id="index.php" href="index.php">Home</a>
 			&nbsp;&nbsp;
 			<?php if (!$loggedin) { ?>
-				<a href="login.php">Login</a>
+				<a id="login.php" href="login.php">Login</a>
 				&nbsp;&nbsp;
-				<a href="register.php">Register</a>
+				<a id="register.php" href="register.php">Register</a>
 				&nbsp;&nbsp;
 			<?php } ?>
 			<?php if ($loggedin) { ?>
-				<a href="list.php">List</a>
+				<a id="list.php" href="list.php">List</a>
 				&nbsp;&nbsp;
-				<a href="editprofile.php">Profile</a>
+				<a id="editprofile.php" href="editprofile.php">Profile</a>
 				&nbsp;&nbsp;
 				<?php if ($isadmin) { ?>
-					<a href="admin.php">Admin</a>
+					<a id="admin.php" href="admin.php">Admin</a>
 					&nbsp;&nbsp;
 				<?php } ?>
-				<a href="fileviewer.php?file=include/help.txt">Help</a>
+				<a id="fileviewer.php?file=include/help.txt" href="fileviewer.php?file=include/help.txt">Help</a>
 				&nbsp;&nbsp;
 				<a href="logout.php">Logout</a>
 				&nbsp;&nbsp;

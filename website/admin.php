@@ -50,6 +50,8 @@ $attachmentTypes = $app->getAttachmentTypes($errors);
 	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="js/current_page.js"></script>
 </head>
 <body>
 	<?php include 'include/header.php'; ?>

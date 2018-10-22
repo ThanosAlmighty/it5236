@@ -60,6 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="js/current_page.js"></script>
 </head>
 
 <!--1. Display Errors if any exists
@@ -69,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	<h2>Topics</h2>
 
 	<?php include('include/messages.php'); ?>
-
 	<div class="search">
 		<form action="list.php" method="post">
 			<label for="search">Filter:</label>
