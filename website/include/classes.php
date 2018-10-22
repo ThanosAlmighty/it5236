@@ -650,7 +650,7 @@ class Application {
 
                     // Create a new session for this user ID in the database
                     $userid = $row['userid'];
-                    $this->newSession($userid, $errors);
+                    $sessionid = $this->newSession($userid, $errors);
                     $this->auditlog("login", "success: $username, $userid");
 
                 }
@@ -667,7 +667,7 @@ class Application {
 
         // Return TRUE if there are no errors, otherwise return FALSE
         if (sizeof($errors) == 0){
-            return TRUE;
+            return $sessionid;
         } else {
             return FALSE;
         }
@@ -716,7 +716,7 @@ class Application {
     }
 
     // Checks for logged in user and redirects to login if not found with "page=protected" indicator in URL.
-    public function protectPage(&$errors, $isAdmin = FALSE) {
+    public function protectPage(&$errors, $isAdmin = FALSE, $otp = FALSE) {
 
         // Get the user ID from the session record
         $user = $this->getSessionUser($errors);
@@ -739,6 +739,22 @@ class Application {
             header("Location: login.php?page=protected");
             exit();
 
+        } else if($otp != TRUE) { //if the page is not otp.php, verify otp status
+          $sessionid = $user['usersessionid'];
+
+          $dbh = $this->getConnection();
+
+      		$sql = "SELECT sessionid FROM OTP WHERE sessionid = :sessionid";
+
+      		$stmt = $dbh->prepare($sql);
+      		$stmt->bindParam(":sessionid", $sessionid);
+      		$result = $stmt->execute();
+          if($result != FALSE){
+            $dbh = NULL;
+            $this->auditlog("protect page", "MFA OTP not complete");
+            header("Location: otp.php");
+            exit();
+          }
         } else if ($isAdmin)  {
 
             // Get the isAdmin flag from the database
@@ -754,6 +770,7 @@ class Application {
             }
 
         }
+
 
     }
 
@@ -1592,6 +1609,56 @@ class Application {
         return $attachmenttypeid;
     }
 
+    //stores a randomly generated OTP in the databse and sends user an email with the same OTP
+    public function create_otp($sessionid, &$errors){
+
+      if (empty($sessionid)) {
+          $errors[] = "Missing sessionid";
+      }
+      if(sizeof($errors) == 0){
+        $dbh = $this->getConnection();
+
+        $otp = bin2hex(random_bytes(3));
+
+        // Construct a SQL statement to perform the insert operation
+        $sql = "INSERT INTO OTP (otp, sessionid, date) VALUES (:otp, :sessionid, DATE_ADD(NOW()))";
+
+        // Run the SQL select and capture the result code
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindParam(":otp", $otp);
+        $stmt->bindParam(":sessionid", $sessionid);
+        $result = $stmt->execute();
+
+        // If the query did not run successfully, add an error message to the list
+        if ($result === FALSE) {
+
+            $errors[] = "An unexpected error occurred";
+            $this->debug($stmt->errorInfo());
+            $this->auditlog("otp insert error", $stmt->errorInfo());
+            return FALSE;
+        } else {
+          $this->auditlog("OTP", "Sending message to $email");
+
+          // Send reset email
+          $pageLink = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+          $pageLink = str_replace("login.php", "otp.php", $pageLink);
+          $to = $email;
+          $subject = 'Login One Time Password';
+          $message = "A request has been made to login to https://jonathanhuling.me for this email address. ".
+              "If you did not make this request, please ignore this message. No other action is necessary. ".
+              "To confirm the login, please click the following link: $pageLink, or copy and paste it into your browser. Then, copy and paste the following One Time Password when prompted: $otp";
+          $headers = 'From: no-reply@jonathanhuling.me' . "\r\n";
+
+          mail($to, $subject, $message, $headers);
+
+          $this->auditlog("OTP", "Message sent to $email");
+          return TRUE;
+        }
+      } else {
+          $this->auditlog("missing otp parameters", $errors);
+          return FALSE;
+      }
+    }
 }
 
 
