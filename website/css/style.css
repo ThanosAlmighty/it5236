@@ -1,5 +1,16 @@
 body {
 	margin: 15px 15px 15px 15px;
+	background-color: #C0B3A0;
+}
+
+#header{
+	background-color: #3F3250;
+	color: #FFFFFF;
+}
+
+.footer{
+	background-color: #22252C;
+	color: #FFFFFF;
 }
 
 div.nav {

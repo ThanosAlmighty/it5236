@@ -24,29 +24,31 @@
 
 
 ?>
-	<div class="nav">
-		<a href="index.php">Home</a>
-		&nbsp;&nbsp;
-		<?php if (!$loggedin) { ?>
-			<a href="login.php">Login</a>
+<div id="header">
+		<div class="nav">
+			<a href="index.php">Home</a>
 			&nbsp;&nbsp;
-			<a href="register.php">Register</a>
-			&nbsp;&nbsp;
-		<?php } ?>
-		<?php if ($loggedin) { ?>
-			<a href="list.php">List</a>
-			&nbsp;&nbsp;
-			<a href="editprofile.php">Profile</a>
-			&nbsp;&nbsp;
-			<?php if ($isadmin) { ?>
-				<a href="admin.php">Admin</a>
+			<?php if (!$loggedin) { ?>
+				<a href="login.php">Login</a>
+				&nbsp;&nbsp;
+				<a href="register.php">Register</a>
 				&nbsp;&nbsp;
 			<?php } ?>
-			<a href="fileviewer.php?file=include/help.txt">Help</a>
-			&nbsp;&nbsp;
-			<a href="logout.php">Logout</a>
-			&nbsp;&nbsp;
+			<?php if ($loggedin) { ?>
+				<a href="list.php">List</a>
+				&nbsp;&nbsp;
+				<a href="editprofile.php">Profile</a>
+				&nbsp;&nbsp;
+				<?php if ($isadmin) { ?>
+					<a href="admin.php">Admin</a>
+					&nbsp;&nbsp;
+				<?php } ?>
+				<a href="fileviewer.php?file=include/help.txt">Help</a>
+				&nbsp;&nbsp;
+				<a href="logout.php">Logout</a>
+				&nbsp;&nbsp;
 
-		<?php } ?>
+			<?php } ?>
+		</div>
+		<h1>MusiConvo</h1>
 	</div>
-	<h1>MusiConvo</h1>
