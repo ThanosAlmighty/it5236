@@ -1670,7 +1670,8 @@ class Application {
   		$stmt = $dbh->prepare($sql);
   		$stmt->bindParam(":otp", $otp);
   		$stmt->bindParam(":sessionid", $sessionid);
-  		return $stmt->execute();
+  		$stmt->execute();
+      return $stmt->rowCount();
     }
 }
 

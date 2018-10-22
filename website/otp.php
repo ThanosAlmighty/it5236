@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	if(sizeof($errors) == 0){
 		$result = $app->verify_otp($otp, $sessionid);
 		// If the query did not run successfully, add an error message to the list
-		if ($result === FALSE) {
+		if ($result == 0) {
 			$errors[] = "Invalid session/OTP combination";
 			$app->auditlog("OTP", $errors);
 		} else {
