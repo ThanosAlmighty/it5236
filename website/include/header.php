@@ -49,4 +49,4 @@
 
 		<?php } ?>
 	</div>
-	<h1>MusiConvo (Than's Music Forum)</h1>
+	<h1>MusiConvo</h1>
