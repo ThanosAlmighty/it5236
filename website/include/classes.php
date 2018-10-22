@@ -740,7 +740,7 @@ class Application {
             header("Location: login.php?page=protected");
             exit();
 
-        } else if($otp != TRUE) { //if the page is not otp.php, verify otp status
+        } else if($otp === FALSE) { //if the page is not otp.php, verify otp status
           $sessionid = $user['usersessionid'];
 
           $dbh = $this->getConnection();

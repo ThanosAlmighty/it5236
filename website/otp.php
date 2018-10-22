@@ -4,7 +4,7 @@
 	$app = new Application();
 	$app->setup();
 
-	$app->protectPage($errors, TRUE);
+	$app->protectPage($errors, FALSE, TRUE);
 
 	$errors = array();
 	$otp = '';
