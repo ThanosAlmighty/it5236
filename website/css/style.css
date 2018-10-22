@@ -6,7 +6,9 @@ body {
 #header{
 	background-color: #22252C;
 	color: #FFFFFF;
-  margin:0 auto;
+}
+#header h1{
+	margin: 5px auto 5px auto;
 }
 
 .footer{
