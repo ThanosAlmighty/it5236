@@ -8,10 +8,13 @@
 
 	$errors = array();
 	$otp = '';
+	$sessionid = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$otp = $_POST['OTP'];
 	if(!isset($_COOKIE['sessionid']) || empty($_COOKIE['sessionid'])){
 		$errors[] = "You do not have a valid session";
+	} else {
+		$sessionid = $_COOKIE['sessionid'];
 	}
 	if(empty($otp)){
 		$errors[] = "Please enter your One Time Password";
