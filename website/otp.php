@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$errors[] = "Please enter your One Time Password";
 	}
 	if(sizeof($errors) == 0){
-		$dbh = $this->getConnection();
+		$dbh = $app->getConnection();
 
 		$sql = "DELETE FROM OTP WHERE otp = :otp AND sessionid = :sessionid";
 
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 	<?php include 'include/header.php'; ?>
 
-	<h2>Login</h2>
+	<h2>OTP Login</h2>
 
 	<?php include('include/messages.php'); ?>
 
