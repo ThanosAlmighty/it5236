@@ -749,8 +749,8 @@ class Application {
 
       		$stmt = $dbh->prepare($sql);
       		$stmt->bindParam(":sessionid", $sessionid);
-      		$result = $stmt->execute();
-          if($result != FALSE){
+      		$stmt->execute();
+          if($stmt->rowCount() > 0){
             $dbh = NULL;
             $this->auditlog("protect page", "MFA OTP not complete");
             header("Location: otp.php");
