@@ -172,7 +172,7 @@ class Application {
 						$errors[] = "Server error";
 					}
  				} else if($httpCode == 200) {
- 					// $this->sendValidationEmail($userid, $email, $errors);
+ 					$this->sendValidationEmail($userid, $email, $errors);
  				}
  			}
 
@@ -222,11 +222,10 @@ class Application {
             $pageLink = str_replace("register.php", "login.php", $pageLink);
             $to      = $email;
             $subject = 'Confirm your email address';
-            $message = "A request has been made to create an account at https://russellthackston.me for this email address. ".
+            $message = "A request has been made to create an account at https://jonathanhuling.me for this email address. ".
                 "If you did not make this request, please ignore this message. No other action is necessary. ".
                 "To confirm this address, please click the following link: $pageLink?id=$validationid";
-            $headers = 'From: webmaster@russellthackston.me' . "\r\n" .
-                'Reply-To: webmaster@russellthackston.me' . "\r\n";
+            $headers = 'From: no-reply@jonathanhuling.me' . "\r\n";
 
             mail($to, $subject, $message, $headers);
 
