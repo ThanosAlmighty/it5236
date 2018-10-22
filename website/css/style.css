@@ -30,21 +30,19 @@ div.nav {
 	padding: 5px 5px 5px 5px;
 	text-decoration: none;
 }
+
 .nav a:hover{
 	background-color: #e14658;
 	border: 2px solid #FFFFFF;
 	color: #22252C;
 }
+
 .nav a:active{
 	background-color: #FFFFFF;
 	border: 2px solid #FFFFFF;
 	color: #22252C;
 }
-.current{
-	background-color: #e14658;
-	border: 2px solid #FFFFFF;
-	color: #22252C;
-}
+
 ul.things {
 	padding-left: 10px;
 }
