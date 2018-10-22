@@ -1,4 +1,6 @@
 body {
+	height: 100%;
+	width: 100%;
 	margin: -22px 0 0 0;
 	background-color: #C0B3A0;
 	background-image: url('../images/Music-Wallpaper-Backgrounds-HD.jpg');
@@ -8,7 +10,8 @@ body {
 }
 #wrapper{
 	background-color: #C0B3A0;
-	margin: 15px 15px 15px 15px;
+	margin: 0 auto;
+	height: 100%;
 	width: 80%;
 }
 #header{
