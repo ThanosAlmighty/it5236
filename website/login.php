@@ -58,9 +58,9 @@ if (isset($_GET['register']) && $_GET['register']== 'success') {
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>jonathanhuling.me</title>
-	<meta name="description" content="Russell Thackston's personal website for IT 5233">
-	<meta name="author" content="Russell Thackston">
+	<title>MusiConvo - Login</title>
+	<meta name="description" content="Jonathan Huling's personal website for IT 5233">
+	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>

@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>jonathanhuling.me</title>
+	<title>MusiConvo - MFA</title>
 	<meta name="description" content="Jonathan Huling's personal website for IT 5236">
 	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 	<?php include 'include/header.php'; ?>
 
-	<h2>OTP Login</h2>
+	<h2>One Time Password - MFA</h2>
 
 	<?php include('include/messages.php'); ?>
 

@@ -18,27 +18,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 	// Get the topic id from the URL
 	$thingid = $_GET['thingid'];
-	
+
 	// Attempt to obtain the topic
 	$thing = $app->getThing($thingid, $errors);
-	
+
 	// If there were no errors getting the topic, try to get the comments
 	if (sizeof($errors) == 0) {
-	
+
 		// Attempt to obtain the comments for this topic
 		$thing = $app->getThing($thingid, $errors);
-		
+
 		// If the thing loaded successfully, load the associated comments
 		if (isset($thing)) {
 			$comments = $app->getComments($thing['thingid'], $errors);
 		}
-	
+
 	} else {
 		// Redirect the user to the things page on error
 		header("Location: list.php?error=nothing");
 		exit();
 	}
-	
+
 	// Check for url flag indicating that a new comment was created.
 	if (isset($_GET["newcomment"]) && $_GET["newcomment"] == "success") {
 		$message = "New comment successfully created.";
@@ -81,20 +81,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>russellthackston.me</title>
-	<meta name="description" content="Russell Thackston's personal website for IT 5233">
-	<meta name="author" content="Russell Thackston">
+	<title>jonathanhuling.me</title>
+	<meta name="description" content="Jonathan Huling's personal website for IT 5236">
+	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 	<?php include 'include/header.php'; ?>
 	<div class="breadcrumbs">
-		<a href="list.php">Back to things list</a>
+		<a href="list.php">Back to item list</a>
 	</div>
-	
+
 	<?php include('include/messages.php'); ?>
-	
+
 	<div class="topiccontainer">
 		<p class="topictitle"><?php echo $thing['thingname']; ?></p>
 		<p class="topictagline"><?php echo $thing['username']; ?> on <?php echo $thing['thingcreated']; ?></p>

@@ -16,14 +16,14 @@ $name = $_GET["file"];
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>russellthackston.me</title>
-	<meta name="description" content="Russell Thackston's personal website for IT 5233">
-	<meta name="author" content="Russell Thackston">
+	<title>MusiConvo - File Viewer</title>
+	<meta name="description" content="Jonathan Huling's personal website for IT 5233">
+	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
-<!--1. Display Errors if any exists 
+<!--1. Display Errors if any exists
 	2. If no errors display things -->
 <body>
 	<?php include 'include/header.php'; ?>
@@ -31,6 +31,6 @@ $name = $_GET["file"];
 	<div>
 		<?php echo $app->getFile($name); ?>
 	</div>
-	
+
 </body>
 </html>

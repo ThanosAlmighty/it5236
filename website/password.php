@@ -24,11 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 	// Request a password reset email message
 	$app->updatePassword($password, $passwordrequestid, $errors);
-	
+
 	if (sizeof($errors) == 0) {
 		$message = "Password updated";
 	}
-	
+
 }
 
 ?>
@@ -38,9 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>russellthackston.me</title>
-	<meta name="description" content="Russell Thackston's personal website for IT 5233">
-	<meta name="author" content="Russell Thackston">
+	<title>MusiConvo - Password Reset</title>
+	<meta name="description" content="Jonathan Huling's personal website for IT 5233">
+	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>

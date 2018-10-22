@@ -1,5 +1,5 @@
 <?php
-	
+
 // Import the application classes
 require_once('include/classes.php');
 
@@ -27,7 +27,7 @@ if (isset($_GET["error"]) && $_GET["error"] == "nothing") {
 if (isset($_GET["newthing"]) && $_GET["newthing"] == "success") {
 	$message = "Thing successfully created.";
 }
-	
+
 // If someone is attempting to create a new thing, the process the request
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -55,21 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>russellthackston.me</title>
-	<meta name="description" content="Russell Thackston's personal website for IT 5233">
-	<meta name="author" content="Russell Thackston">
+	<title>MusiConvo - Topic List</title>
+	<meta name="description" content="Jonathan Huling's personal website for IT 5233">
+	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
-<!--1. Display Errors if any exists 
+<!--1. Display Errors if any exists
 	2. If no errors display things -->
 <body>
 	<?php include 'include/header.php'; ?>
-	<h2>My Things</h2>
-	
+	<h2>Topics</h2>
+
 	<?php include('include/messages.php'); ?>
-	
+
 	<div class="search">
 		<form action="list.php" method="post">
 			<label for="search">Filter:</label>
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	</div>
 	<ul class="things">
 		<?php if (sizeof($things) == 0) { ?>
-		<li>No things found</li>
+		<li>No topics found</li>
 		<?php } ?>
 		<?php foreach ($things as $thing) { ?>
 		<li>

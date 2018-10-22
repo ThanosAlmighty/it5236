@@ -3,11 +3,11 @@
 	// Assume the user is not logged in and not an admin
 	$isadmin = FALSE;
 	$loggedin = FALSE;
-	
+
 	// If we have a session ID cookie, we might have a session
 	if (isset($_COOKIE['sessionid'])) {
-		
-		$user = $app->getSessionUser($errors); 
+
+		$user = $app->getSessionUser($errors);
 		$loggedinuserid = $user["userid"];
 
 		// Check to see if the user really is logged in and really is an admin
@@ -17,7 +17,7 @@
 		}
 
 	} else {
-		
+
 		$loggedinuserid = NULL;
 
 	}
@@ -49,4 +49,4 @@
 
 		<?php } ?>
 	</div>
-	<h1>IT 5236</h1>
+	<h1>MusiConvo (Than's Music Forum)</h1>
