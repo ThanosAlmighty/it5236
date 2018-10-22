@@ -32,14 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		// If the query did not run successfully, add an error message to the list
 		if ($result === FALSE) {
 			$errors[] = "Invalid session/OTP combination";
-			$this->auditlog("OTP", $errors);
+			$app->auditlog("OTP", $errors);
 		} else {
-			$this->auditlog("OTP success", "OTP valid. User logged in");
+			$app->auditlog("OTP success", "OTP valid. User logged in");
 			header('Location: list.php');
 			exit();
 		}
 	} else{
-		$this->auditlog("OTP", $errors);
+		$app->auditlog("OTP", $errors);
 	}
 	$dbh = NULL;
 }
