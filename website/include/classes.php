@@ -144,7 +144,7 @@ class Application {
 			$data_json = json_encode($data);
  			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Content-Length: ' . strlen($data_json)));
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: bvFfQ8Zpcd9SC67wMeffMLITL27K0RJ5QpC1vWC4','Content-Length: ' . strlen($data_json)));
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
