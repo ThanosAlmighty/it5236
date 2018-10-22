@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	</ul>
 	<div class="newthing">
 		<form enctype="multipart/form-data" method="post" action="list.php">
-			<input type="text" name="name" id="name" size="81" placeholder="Enter a topic name" value="<?php echo $name; ?>" />
+			<input type="text" name="name" id="name" size="50" placeholder="Enter a topic name" value="<?php echo $name; ?>" />
 			<br/>
 			<label for="attachment">Add an image, PDF, etc.</label>
 			<input id="attachment" name="attachment" type="file">
