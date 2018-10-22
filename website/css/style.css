@@ -16,6 +16,10 @@ body {
 	background-color: #3F3250;
 	color: #FFFFFF;
 	padding: 5px;
+	position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
 }
 
 div.nav {
