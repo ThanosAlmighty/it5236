@@ -729,8 +729,19 @@ class Application {
             exit();
         }
 
-        // Get the user's ID
+        // Get the user's ID and MFA status
         $userid = $user["userid"];
+        $sessionid = $user['usersessionid'];
+
+        $dbh = $this->getConnection();
+
+        $sql = "SELECT sessionid FROM OTP WHERE sessionid = :sessionid";
+
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindParam(":sessionid", $sessionid);
+        $stmt->execute();
+        $OTP_verification = $stmt->rowCount();
+        $dbh = NULL;
 
         // If there is no user ID in the session, then the user is not logged in
         if(empty($userid)) {
@@ -740,26 +751,14 @@ class Application {
             header("Location: login.php?page=protected");
             exit();
 
-        } else if($otp === FALSE) { //if the page is not otp.php, verify otp status
-          $sessionid = $user['usersessionid'];
-
-          $dbh = $this->getConnection();
-
-      		$sql = "SELECT sessionid FROM OTP WHERE sessionid = :sessionid";
-
-      		$stmt = $dbh->prepare($sql);
-      		$stmt->bindParam(":sessionid", $sessionid);
-      		$stmt->execute();
-          if($stmt->rowCount() > 0){
-            $dbh = NULL;
-            $this->auditlog("protect page", "MFA OTP not complete");
-            header("Location: otp.php");
-            exit();
-          } else {
-            $this->auditlog("protect page", "MFA OTP already completed");
-            header("Location: list.php");
-            exit();
-          }
+        } else if(($otp === FALSE) && ($OTP_verification > 0)) { //if the page is not otp.php, verify otp status
+          $this->auditlog("protect page", "MFA OTP not complete");
+          header("Location: otp.php");
+          exit();
+        } else if(($otp === TRUE) && ($OTP_verification == 0)) { //if the page is otp.php, but OTP has already been deleted from table, redirect to list.php
+          $this->auditlog("protect page", "MFA OTP already complete");
+          header("Location: list.php");
+          exit();
         } else if ($isAdmin)  {
 
             // Get the isAdmin flag from the database
@@ -773,8 +772,6 @@ class Application {
                 exit();
 
             }
-
-        }
 
 
     }
