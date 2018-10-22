@@ -9,12 +9,13 @@ body {
 }
 
 #header h1{
-	padding: 10px 0 10px 0;
+	padding: 10px 0 10px 5px;
 }
 
 .footer{
 	background-color: #3F3250;
 	color: #FFFFFF;
+	padding: 5px;
 }
 
 div.nav {
