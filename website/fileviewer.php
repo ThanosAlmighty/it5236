@@ -31,6 +31,6 @@ $name = $_GET["file"];
 	<div>
 		<?php echo $app->getFile($name); ?>
 	</div>
-
+	<?php include 'include/footer.php'; ?>
 </body>
 </html>
