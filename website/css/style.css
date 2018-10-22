@@ -7,8 +7,9 @@ body {
 	background-color: #22252C;
 	color: #FFFFFF;
 }
+
 #header h1{
-	margin: 5px auto 5px auto;
+	padding: 10px 0 10px 0;
 }
 
 .footer{
@@ -26,8 +27,13 @@ div.nav {
 	color: #FFFFFF;
 	margin-left: 10px;
 	margin-bottom: 20px;
-	padding: 10px;
+	padding: 5px 5px 5px 5px;
 	text-decoration: none;
+}
+.nav a:hover{
+	background-color: #e14658;
+	border: 2px solid #FFFFFF;
+	color: #22252C;
 }
 ul.things {
 	padding-left: 10px;
