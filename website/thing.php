@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>jonathanhuling.me</title>
+	<title>MusiConvo</title>
 	<meta name="description" content="Jonathan Huling's personal website for IT 5236">
 	<meta name="author" content="Jonathan Huling">
 	<link rel="stylesheet" href="css/style.css">

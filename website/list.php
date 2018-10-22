@@ -20,12 +20,12 @@ $things = $app->getThings($errors);
 
 // Check for url flag indicating that there was a "no thing" error.
 if (isset($_GET["error"]) && $_GET["error"] == "nothing") {
-	$errors[] = "Things not found.";
+	$errors[] = "Topic not found.";
 }
 
 // Check for url flag indicating that a new thing was created.
 if (isset($_GET["newthing"]) && $_GET["newthing"] == "success") {
-	$message = "Thing successfully created.";
+	$message = "Topic successfully created.";
 }
 
 // If someone is attempting to create a new thing, the process the request
@@ -91,12 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	</ul>
 	<div class="newthing">
 		<form enctype="multipart/form-data" method="post" action="list.php">
-			<input type="text" name="name" id="name" size="81" placeholder="Enter a thing name" value="<?php echo $name; ?>" />
+			<input type="text" name="name" id="name" size="81" placeholder="Enter a topic name" value="<?php echo $name; ?>" />
 			<br/>
 			<label for="attachment">Add an image, PDF, etc.</label>
 			<input id="attachment" name="attachment" type="file">
 			<br/>
-			<input type="submit" name="start" value="Create Thing" />
+			<input type="submit" name="start" value="Create Topic" />
 			<input type="submit" name="cancel" value="Cancel" />
 		</form>
 	</div>
