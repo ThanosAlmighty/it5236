@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	<meta name="author" content="Jonathan Huling">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
-	<script type="text/javascript" src="http://localhost/it5236/website/js/current_page.js"></script>
+	<script type="text/javascript" src="http://18.204.227.194/it5236/website/js/current_page.js"></script>
 	<link rel="stylesheet" href="css/style.css">
 </head>
 
