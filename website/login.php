@@ -65,6 +65,7 @@ if (isset($_GET['register']) && $_GET['register']== 'success') {
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/current_page.js"></script>
+	<script src="js/saveLocal.js"></script>
 </head>
 
 <!--1. Display Errors if any exists
