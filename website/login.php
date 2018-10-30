@@ -87,7 +87,7 @@ if (isset($_GET['register']) && $_GET['register']== 'success') {
 			<br/>
 			Save username?<input type="checkbox" name="saveLocal" id="saveLocal">
 			<br/>
-			<input type="submit" value="Login" name="login" />
+			<input type="submit" value="Login" name="submit" />
 		</form>
 	</div>
 	<a href="register.php">Need to create an account?</a>
