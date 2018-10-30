@@ -78,14 +78,15 @@ if (isset($_GET['register']) && $_GET['register']== 'success') {
 	<?php include('include/messages.php'); ?>
 
 	<div>
-		<form method="post" action="login.php">
+		<form id="loginForm" method="post" action="login.php">
 
 			<input type="text" name="username" id="username" placeholder="Username" value="<?php echo $username; ?>" />
 			<br/>
 
 			<input type="password" name="password" id="password" placeholder="Password" value="<?php echo $password; ?>" />
 			<br/>
-
+			<input type="checkbox" name="saveLocal" id="saveLocal">
+			<br/>
 			<input type="submit" value="Login" name="login" />
 		</form>
 	</div>
