@@ -85,7 +85,7 @@ if (isset($_GET['register']) && $_GET['register']== 'success') {
 
 			<input type="password" name="password" id="password" placeholder="Password" value="<?php echo $password; ?>" />
 			<br/>
-			<input type="checkbox" name="saveLocal" id="saveLocal">
+			Save username?<input type="checkbox" name="saveLocal" id="saveLocal">
 			<br/>
 			<input type="submit" value="Login" name="login" />
 		</form>
