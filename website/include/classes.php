@@ -133,7 +133,7 @@ class Application {
 
             // Create a new user ID
             $userid = bin2hex(random_bytes(16));
- 			$url = "https://veewy5p3g7.execute-api.us-east-1.amazonaws.com/v1/register_user";
+ 			$url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/register_user";
 			$data = array(
 				'userid'=>$userid,
 				'username'=>$username,
@@ -144,7 +144,7 @@ class Application {
 			$data_json = json_encode($data);
  			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: N2OVJCJeMf6757Qd4vqI5aBg348Sfkga1Wjd6fea','Content-Length: ' . strlen($data_json)));
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
