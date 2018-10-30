@@ -19,11 +19,9 @@ function doPageLoad(e) {
 	if (usernameLocal) {
 		document.getElementById("saveLocal").checked = true;
 		document.getElementById("username").value = usernameLocal;
-	} else {
-		document.getElementById("saveLocal").checked = false;
 	}
 }
 
 // Add event listeners for page load and form submit
-window.addEventListener("load", doPageLoad, false)
+window.addEventListener("load", doPageLoad, false);
 document.getElementById("loginForm").addEventListener("submit", doSubmit, false);
