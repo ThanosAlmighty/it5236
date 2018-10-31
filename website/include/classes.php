@@ -644,8 +644,8 @@ class Application {
             if (empty($result)) {
 
                 $errors[] = "Bad username/password combination";
-                print_r($result);
                 $this->auditlog("login", "bad username: $username");
+                return $result;
 
 
                 // If the query ran successfully and we got back a row, then the login succeeded
@@ -655,8 +655,8 @@ class Application {
                 if (!password_verify($password, $result->passwordhash)) {
 
                     $errors[] = "Bad username/password combination";
-                    print_r($result);
                     $this->auditlog("login", "bad password: password length = ".strlen($password));
+                    return $result;
 
                 } else if ($result->emailValidated == 0) {
 
