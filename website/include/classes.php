@@ -645,29 +645,27 @@ class Application {
 
                 $errors[] = "Bad username/password combination";
                 $this->auditlog("login", "bad username: $username");
-                return $result;
 
 
                 // If the query ran successfully and we got back a row, then the login succeeded
             } else {
 
                 // Check the password
-                if (!password_verify($password, $result->passwordhash)) {
+                if (!password_verify($password, $result[0]->passwordhash)) {
 
                     $errors[] = "Bad username/password combination";
                     $this->auditlog("login", "bad password: password length = ".strlen($password));
-                    return $result;
 
-                } else if ($result->emailValidated == 0) {
+                } else if ($result[0]->emailValidated->data[0] == 0) {
 
                     $errors[] = "Login error. Email not validated. Please check your inbox and/or spam folder.";
 
                 } else {
 
                     // Create a new session for this user ID in the database
-                    $userid = $result->userid;
+                    $userid = $result[0]->userid;
                     $sessionid = $this->newSession($userid, $errors);
-                    $email = $result->email;
+                    $email = $result[0]->email;
                     $this->auditlog("login", "success: $username, $userid");
 
                 }
