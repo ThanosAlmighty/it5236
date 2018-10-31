@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 	// Attempt to login the user and capture the result flag
 	$result = $app->login($username, $password, $errors);
-	echo $result;
+	print_r($result);
 	// Check to see if the login attempt succeeded
 	if ($result != FALSE) {
 		if($app->create_otp($result['email'], $result['sessionid'], $errors)){
