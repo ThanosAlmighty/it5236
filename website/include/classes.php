@@ -656,8 +656,8 @@ class Application {
                     $errors[] = "Bad username/password combination";
                     $this->auditlog("login", "bad password: password length = ".strlen($password));
 
-                } else if ($result[0]->emailValidated->data[0] == 0) {
-                    $errors[] = "Login error. Email not validated. Please check your inbox and/or spam folder.".$result[0]->emailValidated;
+                } else if ($result[0]->emailValidated == 0) {
+                    $errors[] = "Login error. Email not validated. Please check your inbox and/or spam folder.";
 
                 } else {
 
