@@ -603,8 +603,9 @@ class Application {
         // Only try to query the data into the database if there are no validation errors
         if (sizeof($errors) == 0) {
           $result = "";
+          $e_usr = urlencode($username);
             // Connect to the API
-            $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/login_user?username=$username";
+            $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/login_user?username=$e_usr";
        			$ch = curl_init();
       			curl_setopt($ch, CURLOPT_URL, $url);
       			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
@@ -643,6 +644,7 @@ class Application {
             if (empty($result)) {
 
                 $errors[] = "Bad username/password combination";
+                print_r($result);
                 $this->auditlog("login", "bad username: $username");
 
 
@@ -653,6 +655,7 @@ class Application {
                 if (!password_verify($password, $result->passwordhash)) {
 
                     $errors[] = "Bad username/password combination";
+                    print_r($result);
                     $this->auditlog("login", "bad password: password length = ".strlen($password));
 
                 } else if ($result->emailValidated == 0) {
