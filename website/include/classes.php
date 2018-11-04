@@ -695,19 +695,46 @@ class Application {
         // Only try to query the data into the database if there are no validation errors
         if (!empty($sessionid)) {
 
-            // Connect to the database
-            $dbh = $this->getConnection();
+              $result = "";
+              $data_json = json_encode(array("sessionid"=>$sessionid));
+              // Connect to the API
+              $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/logout_user";
+         			$ch = curl_init();
+        			curl_setopt($ch, CURLOPT_URL, $url);
+        			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+        			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+              curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+        			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        			$response  = curl_exec($ch);
+        			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+         			if ($response === FALSE) {
+        				$errors[] = "An unexpected failure occurred contacting the web service.";
+        			} else {
+         				if($httpCode == 400) {
+        					// JSON was double-encoded, so it needs to be double decoded
+        					$errorsList = json_decode(json_decode($response))->errors;
+        					foreach ($errorsList as $err) {
+        						$errors[] = $err;
+        					}
+        					if (sizeof($errors) == 0) {
+        						$errors[] = "Bad input";
+        					}
+         				} else if($httpCode == 500) {
+         					$errorsList = json_decode(json_decode($response))->errors;
+        					foreach ($errorsList as $err) {
+        						$errors[] = $err;
+        					}
+        					if (sizeof($errors) == 0) {
+        						$errors[] = "Server error";
+        					}
+         				} else if($httpCode == 200) {
+         					$result = json_decode($response);
+         				}
+         			}
 
-            // Construct a SQL statement to perform the insert operation
-            $sql = "DELETE FROM usersessions WHERE usersessionid = :sessionid OR expires < now()";
-
-            // Run the SQL select and capture the result code
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindParam(":sessionid", $sessionid);
-            $result = $stmt->execute();
-
+        			curl_close($ch);
             // If the query did not run successfully, add an error message to the list
-            if ($result === FALSE) {
+            if ($result === 0) {
 
                 $this->debug($stmt->errorInfo());
                 $this->auditlog("logout error", $stmt->errorInfo());
