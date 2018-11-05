@@ -192,49 +192,73 @@ class Application {
     // Send an email to validate the address
     protected function sendValidationEmail($userid, $email, &$errors) {
 
-        // Connect to the database
-        $dbh = $this->getConnection();
-
         $this->auditlog("sendValidationEmail", "Sending message to $email");
 
         $validationid = bin2hex(random_bytes(16));
 
-        // Construct a SQL statement to perform the insert operation
-        $sql = "INSERT INTO emailvalidation (emailvalidationid, userid, email, emailsent) " .
-            "VALUES (:emailvalidationid, :userid, :email, NOW())";
+        // Connect to the API
+        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/sendValidationEmail";
+  			$data = array(
+  				'userid'=>$userid,
+  				'email'=>$email,
+  				'emailvalidationid'=>$validationid
+  			);
+  			$data_json = json_encode($data);
+   			$ch = curl_init();
+  			curl_setopt($ch, CURLOPT_URL, $url);
+  			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+  			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+  			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+  			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  			$response  = curl_exec($ch);
+  			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+   			if ($response === FALSE) {
+  				$errors[] = "An unexpected failure occurred contacting the web service.";
+  			} else {
+   				if($httpCode == 400) {
+  					// JSON was double-encoded, so it needs to be double decoded
+  					$errorsList = json_decode(json_decode($response))->errors;
+  					foreach ($errorsList as $err) {
+  						$errors[] = $err;
+  					}
+  					if (sizeof($errors) == 0) {
+  						$errors[] = "Bad input";
+  					}
+   				} else if($httpCode == 500) {
+   					$errorsList = json_decode(json_decode($response))->errors;
+  					foreach ($errorsList as $err) {
+  						$errors[] = $err;
+  					}
+  					if (sizeof($errors) == 0) {
+  						$errors[] = "Server error";
+  					}
+   				} else if($httpCode == 200) {
+            if ($response === 0) {
+                $errors[] = "An unexpected error occurred sending the validation email";
+                $this->debug($stmt->errorInfo());
+                $this->auditlog("register error", $stmt->errorInfo());
+            } else {
 
-        // Run the SQL select and capture the result code
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindParam(":emailvalidationid", $validationid);
-        $stmt->bindParam(":userid", $userid);
-        $stmt->bindParam(":email", $email);
-        $result = $stmt->execute();
-        if ($result === FALSE) {
-            $errors[] = "An unexpected error occurred sending the validation email";
-            $this->debug($stmt->errorInfo());
-            $this->auditlog("register error", $stmt->errorInfo());
-        } else {
+                $this->auditlog("sendValidationEmail", "Sending message to $email");
 
-            $this->auditlog("sendValidationEmail", "Sending message to $email");
+                // Send reset email
+                $pageLink = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+                $pageLink = str_replace("register.php", "login.php", $pageLink);
+                $to      = $email;
+                $subject = 'Confirm your email address';
+                $message = "A request has been made to create an account at https://jonathanhuling.me for this email address. ".
+                    "If you did not make this request, please ignore this message. No other action is necessary. ".
+                    "To confirm this address, please click the following link: $pageLink?id=$validationid";
+                $headers = 'From: no-reply@jonathanhuling.me' . "\r\n";
 
-            // Send reset email
-            $pageLink = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $pageLink = str_replace("register.php", "login.php", $pageLink);
-            $to      = $email;
-            $subject = 'Confirm your email address';
-            $message = "A request has been made to create an account at https://jonathanhuling.me for this email address. ".
-                "If you did not make this request, please ignore this message. No other action is necessary. ".
-                "To confirm this address, please click the following link: $pageLink?id=$validationid";
-            $headers = 'From: no-reply@jonathanhuling.me' . "\r\n";
+                mail($to, $subject, $message, $headers);
 
-            mail($to, $subject, $message, $headers);
+                $this->auditlog("sendValidationEmail", "Message sent to $email");
+            }
+   				}
+   			}
 
-            $this->auditlog("sendValidationEmail", "Message sent to $email");
-
-        }
-
-        // Close the connection
-        $dbh = NULL;
+  			curl_close($ch);
 
     }
 
@@ -635,44 +659,40 @@ class Application {
       					}
        				} else if($httpCode == 200) {
        					$result = json_decode($response);
-       				}
-       			}
-
-      			curl_close($ch);
-
                 // If the query did not return any rows, add an error message for bad username/password
-            if (empty($result)) {
-
-                $errors[] = "Bad username/password combination";
-                $this->auditlog("login", "bad username: $username");
-
-
-                // If the query ran successfully and we got back a row, then the login succeeded
-            } else {
-
-                // Check the password
-                if (!password_verify($password, $result[0]->passwordhash)) {
+                if (empty($result)) {
 
                     $errors[] = "Bad username/password combination";
-                    $this->auditlog("login", "bad password: password length = ".strlen($password));
+                    $this->auditlog("login", "bad username: $username");
 
-                } else if ($result[0]->emailvalidated == 0) {
-                    $errors[] = "Login error. Email not validated. Please check your inbox and/or spam folder.";
 
+                    // If the query ran successfully and we got back a row, then the login succeeded
                 } else {
 
-                    // Create a new session for this user ID in the database
-                    $userid = $result[0]->userid;
-                    $sessionid = $this->newSession($userid, $errors);
-                    $email = $result[0]->email;
-                    $this->auditlog("login", "success: $username, $userid");
+                    // Check the password
+                    if (!password_verify($password, $result[0]->passwordhash)) {
+
+                        $errors[] = "Bad username/password combination";
+                        $this->auditlog("login", "bad password: password length = ".strlen($password));
+
+                    } else if ($result[0]->emailvalidated == 0) {
+                        $errors[] = "Login error. Email not validated. Please check your inbox and/or spam folder.";
+
+                    } else {
+
+                        // Create a new session for this user ID in the database
+                        $userid = $result[0]->userid;
+                        $sessionid = $this->newSession($userid, $errors);
+                        $email = $result[0]->email;
+                        $this->auditlog("login", "success: $username, $userid");
+
+                    }
 
                 }
+           		}
+           	}
 
-            }
-
-            // Close the connection
-            $dbh = NULL;
+      			curl_close($ch);
 
         } else {
             $this->auditlog("login validation error", $errors);
@@ -729,29 +749,23 @@ class Application {
         					}
          				} else if($httpCode == 200) {
          					$result = json_decode($response);
+                  if ($result === 0) {
+
+                      $this->debug($stmt->errorInfo());
+                      $this->auditlog("logout error", $stmt->errorInfo());
+
+
+                      // If the query ran successfully, then the logout succeeded
+                  } else {
+
+                      // Clear the session ID cookie
+                      setcookie('sessionid', '', time()-3600);
+                      $this->auditlog("logout", "successful: $sessionid");
+
+                  }
          				}
          			}
-
         			curl_close($ch);
-            // If the query did not run successfully, add an error message to the list
-            if ($result === 0) {
-
-                $this->debug($stmt->errorInfo());
-                $this->auditlog("logout error", $stmt->errorInfo());
-
-
-                // If the query ran successfully, then the logout succeeded
-            } else {
-
-                // Clear the session ID cookie
-                setcookie('sessionid', '', time()-3600);
-                $this->auditlog("logout", "successful: $sessionid");
-
-            }
-
-            // Close the connection
-            $dbh = NULL;
-
         }
 
     }
