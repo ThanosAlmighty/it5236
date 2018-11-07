@@ -115,24 +115,24 @@ class Application {
     // Registers a new user
     public function register($username, $password, $email, $registrationcode, &$errors) {
 
-        $this->auditlog("register", "attempt: $username, $email, $registrationcode");
+      $this->auditlog("register", "attempt: $username, $email, $registrationcode");
 
-        // Validate the user input
-        $this->validateUsername($username, $errors);
-        $this->validatePassword($password, $errors);
-        $this->validateEmail($email, $errors);
-        if (empty($registrationcode)) {
-            $errors[] = "Missing registration code";
-        }
+      // Validate the user input
+      $this->validateUsername($username, $errors);
+      $this->validatePassword($password, $errors);
+      $this->validateEmail($email, $errors);
+      if (empty($registrationcode)) {
+          $errors[] = "Missing registration code";
+      }
 
-        // Only try to insert the data into the database if there are no validation errors
-        if (sizeof($errors) == 0) {
+      // Only try to insert the data into the database if there are no validation errors
+      if (sizeof($errors) == 0) {
 
-            // Hash the user's password
-            $passwordhash = password_hash($password, PASSWORD_DEFAULT);
+      // Hash the user's password
+      $passwordhash = password_hash($password, PASSWORD_DEFAULT);
 
-            // Create a new user ID
-            $userid = bin2hex(random_bytes(16));
+      // Create a new user ID
+      $userid = bin2hex(random_bytes(16));
  			$url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/register_user";
 			$data = array(
 				'userid'=>$userid,
@@ -236,7 +236,7 @@ class Application {
             if ($response === 0) {
                 $errors[] = "An unexpected error occurred sending the validation email";
                 $this->debug($stmt->errorInfo());
-                $this->auditlog("register error", $stmt->errorInfo());
+                $this->auditlog("register error", "User could not be created");
             } else {
 
                 $this->auditlog("sendValidationEmail", "Sending message to $email");
@@ -266,85 +266,55 @@ class Application {
     public function processEmailValidation($validationid, &$errors) {
 
         $success = FALSE;
-
-        // Connect to the database
-        $dbh = $this->getConnection();
-
         $this->auditlog("processEmailValidation", "Received: $validationid");
-
-        // Construct a SQL statement to perform the insert operation
-        $sql = "SELECT userid FROM emailvalidation WHERE emailvalidationid = :emailvalidationid";
-
-        // Run the SQL select and capture the result code
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindParam(":emailvalidationid", $validationid);
-        $result = $stmt->execute();
-
-        if ($result === FALSE) {
-
-            $errors[] = "An unexpected error occurred processing your email validation request";
-            $this->debug($stmt->errorInfo());
-            $this->auditlog("processEmailValidation error", $stmt->errorInfo());
-
-        } else {
-
-            if ($stmt->rowCount() != 1) {
-
-                $errors[] = "That does not appear to be a valid request";
-                $this->debug($stmt->errorInfo());
-                $this->auditlog("processEmailValidation", "Invalid request: $validationid");
-
-
+        // Connect to the API
+        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/processEmailValidation";
+  			$data = array(
+  				'emailvalidationid'=>$validationid
+  			);
+  			$data_json = json_encode($data);
+   			$ch = curl_init();
+  			curl_setopt($ch, CURLOPT_URL, $url);
+  			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+  			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+  			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+  			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  			$response  = curl_exec($ch);
+  			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+   			if ($response === FALSE) {
+  				$errors[] = "An unexpected failure occurred contacting the web service.";
+  			} else {
+   				if($httpCode == 400) {
+  					// JSON was double-encoded, so it needs to be double decoded
+  					$errorsList = json_decode(json_decode($response))->errors;
+  					foreach ($errorsList as $err) {
+  						$errors[] = $err;
+  					}
+  					if (sizeof($errors) == 0) {
+  						$errors[] = "Bad input";
+  					}
+   				} else if($httpCode == 500) {
+   					$errorsList = json_decode(json_decode($response))->errors;
+  					foreach ($errorsList as $err) {
+  						$errors[] = $err;
+  					}
+  					if (sizeof($errors) == 0) {
+  						$errors[] = "Server error";
+  					}
+   				} else if($httpCode == 200) {
+            if ($response === 0) {
+                $errors[] = "An unexpected error occurred processing your email validation";
+                $this->auditlog("register error", "Update query affected 0 rows");
+            } else if($result == 1) {
+              $success = TRUE;
             } else {
-
-                $userid = $stmt->fetch(PDO::FETCH_ASSOC)['userid'];
-
-                // Construct a SQL statement to perform the insert operation
-                $sql = "DELETE FROM emailvalidation WHERE emailvalidationid = :emailvalidationid";
-
-                // Run the SQL select and capture the result code
-                $stmt = $dbh->prepare($sql);
-                $stmt->bindParam(":emailvalidationid", $validationid);
-                $result = $stmt->execute();
-
-                if ($result === FALSE) {
-
-                    $errors[] = "An unexpected error occurred processing your email validation request";
-                    $this->debug($stmt->errorInfo());
-                    $this->auditlog("processEmailValidation error", $stmt->errorInfo());
-
-                } else if ($stmt->rowCount() == 1) {
-
-                    $this->auditlog("processEmailValidation", "Email address validated: $validationid");
-
-                    // Construct a SQL statement to perform the insert operation
-                    $sql = "UPDATE users SET emailvalidated = 1 WHERE userid = :userid";
-
-                    // Run the SQL select and capture the result code
-                    $stmt = $dbh->prepare($sql);
-                    $stmt->bindParam(":userid", $userid);
-                    $result = $stmt->execute();
-
-                    $success = TRUE;
-
-                } else {
-
-                    $errors[] = "That does not appear to be a valid request";
-                    $this->debug($stmt->errorInfo());
-                    $this->auditlog("processEmailValidation", "Invalid request: $validationid");
-
-                }
-
+              $errors[] = "That does not appear to be a valid request";
+              $this->debug("Unexpected result");
+              $this->auditlog("processEmailValidation", "Invalid request: $validationid");
             }
-
+          }
         }
-
-
-        // Close the connection
-        $dbh = NULL;
-
         return $success;
-
     }
 
     // Creates a new session in the database for the specified user
