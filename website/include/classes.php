@@ -308,7 +308,7 @@ class Application {
             } else if($response == 1) {
               $success = TRUE;
             } else {
-              $errors[] = "That does not appear to be a valid request";
+              $errors[] = $response;
               $this->debug("Unexpected result");
               $this->auditlog("processEmailValidation", "Invalid request: $validationid");
             }
