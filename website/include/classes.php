@@ -305,7 +305,7 @@ class Application {
             if ($response === 0) {
                 $errors[] = "An unexpected error occurred processing your email validation";
                 $this->auditlog("register error", "Update query affected 0 rows");
-            } else if($result == 1) {
+            } else if($response === 1) {
               $success = TRUE;
             } else {
               $errors[] = "That does not appear to be a valid request";
