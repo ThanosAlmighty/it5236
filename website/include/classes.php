@@ -302,10 +302,10 @@ class Application {
   						$errors[] = "Server error";
   					}
    				} else if($httpCode == 200) {
-            if ($response === 0) {
+            if ($response == 0) {
                 $errors[] = "An unexpected error occurred processing your email validation";
                 $this->auditlog("register error", "Update query affected 0 rows");
-            } else if($response === 1) {
+            } else if($response == 1) {
               $success = TRUE;
             } else {
               $errors[] = "That does not appear to be a valid request";
