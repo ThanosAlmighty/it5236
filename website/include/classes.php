@@ -378,11 +378,11 @@ class Application {
       					}
        				} else if($httpCode == 200) {
                 // If the query did not run successfully, add an error message to the list
-                if ($result == 0) {
+                if ($response == 0) {
                     $errors[] = "An unexpected error occurred creating a session";
                     $this->debug("Server failed to insert session");
                     $this->auditlog("new session error", "Server failed to insert session");
-                } else if($result == 1) {
+                } else if($response == 1) {
                     // Store the session ID as a cookie in the browser
                     setcookie('sessionid', $sessionid, time()+60*60*24*30);
                     $this->auditlog("session", "new session id: $sessionid for user = $userid");
