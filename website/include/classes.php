@@ -344,9 +344,7 @@ class Application {
             $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/createUserSession";
       			$data = array(
       				'userid'=>$userid,
-      				'username'=>$username,
-      				'passwordHash'=>$passwordhash,
-      				'email'=>$email,
+      				'sessionid'=>$sessionid,
       				'registrationcode'=>$registrationcode
       			);
       			$data_json = json_encode($data);
