@@ -156,7 +156,7 @@ class Application {
  				if($httpCode == 400) {
 
 					// JSON was double-encoded, so it needs to be double decoded
-					$errorsList = json_decode(json_decode($response))->errors;
+					$errorsList = json_decode($response)->errors;
 					foreach ($errorsList as $err) {
 						$errors[] = $err;
 					}
