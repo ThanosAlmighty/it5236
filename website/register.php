@@ -32,8 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	if ($result == TRUE) {
 
 		// Redirect the user to the login page on success
-	    //header("Location: login.php?register=success");
-		//exit();
+	  header("Location: login.php?register=success");
+		exit();
 
 	}
 
