@@ -336,7 +336,7 @@ class Application {
                 $this->auditlog("session", "logging in user with first reg code $reg");
                 $registrationcode = $regs[0];
             }
-
+            $return_value = NULL;
             // Create a new session ID
             $sessionid = bin2hex(random_bytes(25));
 
@@ -382,19 +382,18 @@ class Application {
                     $errors[] = "An unexpected error occurred";
                     $this->debug("Server failed to insert session");
                     $this->auditlog("new session error", "Server failed to insert session");
-                    return NULL;
                 } else if($result == 1) {
                     // Store the session ID as a cookie in the browser
                     setcookie('sessionid', $sessionid, time()+60*60*24*30);
                     $this->auditlog("session", "new session id: $sessionid for user = $userid");
                     // Return the session ID
-                    return $sessionid;
+                    $return_value = $sessionid;
                 }
        				}
        			}
 
       			curl_close($ch);
-
+            return $return_value;
         }
 
     }
