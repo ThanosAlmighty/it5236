@@ -525,20 +525,36 @@ class Application {
     // Does not retrun errors, as the user should not be informed of these problems
     protected function clearPasswordResetRecords($passwordresetid) {
 
-        $dbh = $this->getConnection();
+      $data_json = json_encode(array("sessionid"=>$sessionid));
+      // Connect to the API
+      $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/logout_user";
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      $response  = curl_exec($ch);
+      $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      if ($response === FALSE) {
+        $errors[] = "An unexpected failure occurred contacting the web service.";
+      } else {
+        if($httpCode == 400) {
+          // JSON was double-encoded, so it needs to be double decoded
+          $errorsList = json_decode(json_decode($response))->errors;
+          $this->auditlog("clearPasswordResetRecords: Bad Request", $errorsList);
+        } else if($httpCode == 500) {
+          $errorsList = json_decode(json_decode($response))->errors;
+          $this->auditlog("clearPasswordResetRecords: Internal Server Error", $errorsList);
+        } else if($httpCode == 200) {
+          $this->auditlog("clearPasswordResetRecords: ", "Success!");
+        }
 
         // Construct a SQL statement to perform the insert operation
         $sql = "DELETE FROM passwordreset WHERE passwordresetid = :passwordresetid OR expires < NOW()";
 
-        // Run the SQL select and capture the result code
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindParam(":passwordresetid", $passwordresetid);
-        $stmt->execute();
-
-        // Close the connection
-        $dbh = NULL;
-
     }
+  }
 
     // Retrieves an existing session from the database for the specified user
     public function getSessionUser(&$errors, $suppressLog=FALSE) {
