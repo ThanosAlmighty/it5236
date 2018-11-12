@@ -525,9 +525,9 @@ class Application {
     // Does not retrun errors, as the user should not be informed of these problems
     protected function clearPasswordResetRecords($passwordresetid) {
 
-      $data_json = json_encode(array("sessionid"=>$sessionid));
+      $data_json = json_encode(array("passwordresetid"=>$passwordresetid));
       // Connect to the API
-      $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/logout_user";
+      $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/clearPasswordResetRecords";
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $url);
       curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
@@ -547,11 +547,14 @@ class Application {
           $errorsList = json_decode(json_decode($response))->errors;
           $this->auditlog("clearPasswordResetRecords: Internal Server Error", $errorsList);
         } else if($httpCode == 200) {
-          $this->auditlog("clearPasswordResetRecords: ", "Success!");
-        }
+          if ($response == 0) {
+            $this->auditlog("clearPasswordResetRecords: ", "reset id not found");
+          } else {
+            $this->auditlog("clearPasswordResetRecords: ", "Success!");
+            $success = TRUE;
+          }
 
-        // Construct a SQL statement to perform the insert operation
-        $sql = "DELETE FROM passwordreset WHERE passwordresetid = :passwordresetid OR expires < NOW()";
+        }
 
     }
   }
