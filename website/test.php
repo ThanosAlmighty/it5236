@@ -8,7 +8,7 @@ $errors = array();
 // Create an instance of the Application class
 $app = new Application();
 $app->setup();
-$registrations = $this->getUserRegistrations($userid, $errors);
+$registrations = $app->getUserRegistrations($userid, $errors);
     foreach($registrations as $code){
       ?>
         <p>
