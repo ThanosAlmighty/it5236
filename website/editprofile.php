@@ -103,18 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 			<input type="password" name="password" id="password" placeholder="Enter a password" value="<?php echo $password; ?>" /> (optional)
 			<br/>
 			<input type="text" name="email" id="email" placeholder="Enter your email" size="40" value="<?php echo $email; ?>" />
-			<?php
-				if($registrations != 'empty'){
-					foreach($registrations as $code){
-						?>
-							<p>
-								<?php echo $code; ?>
-							</p>
-						<?php
-					}
-				}
-				if ($loggedinuserid != $userid) { ?>
-					<br/>
+				<?php if ($loggedinuserid != $userid) { ?>
 					<input type="checkbox" name="isadmin" id="isadmin" <?php echo ($isadminFlag ? "checked=checked" : ""); ?> value="isadmin" />
 					<label for="isadmin">Grant admin rights</label>
 			<?php } ?>
