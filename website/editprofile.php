@@ -22,7 +22,7 @@ $isadminFlag = FALSE;
 $sessionid = $_COOKIE['sessionid'];
 $user = $app->getSessionUser($sessionid, $errors);
 $loggedinuserid = $user["userid"];
-$registrations = "empty";
+
 // If someone is accessing this page for the first time, try and grab the userid from the GET request
 // then pull the user's details from the database
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -46,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 		$email = $user['email'];
 		$isadminFlag = ($user['isadmin'] == "1");
 		$password = "";
-		$registrations = getUserRegistrations($userid, $errors);
 	}
 
 // If someone is attempting to edit their profile, process the request
