@@ -455,34 +455,57 @@ class Application {
         $this->validatePassword($password, $errors);
 
         if(sizeof($errors) == 0) {
-
-            // Connect to the database
-            $dbh = $this->getConnection();
-
-            // Hash the user's password
             $passwordhash = password_hash($password, PASSWORD_DEFAULT);
-
-            // Construct a SQL statement to perform the select operation
-            $sql = "UPDATE users SET passwordhash=:passwordhash " .
-                "WHERE userid = :userid";
-
-            // Run the SQL select and capture the result code
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindParam(":passwordhash", $passwordhash);
-            $stmt->bindParam(":userid", $userid);
-            $result = $stmt->execute();
-
-            // If the query did not run successfully, add an error message to the list
-            if ($result === FALSE) {
-                $errors[] = "An unexpected error occurred supdating the password.";
-                $this->debug($stmt->errorInfo());
-                $this->auditlog("updateUserPassword error", $stmt->errorInfo());
-            } else {
-                $this->auditlog("updateUserPassword", "success");
+            // Connect to the API
+            $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/updateUserPassword";
+      			$data = array(
+      				'passwordhash'=>$passwordhash,
+              'userid'=>$userid
+      			);
+      			$data_json = json_encode($data);
+       			$ch = curl_init();
+      			curl_setopt($ch, CURLOPT_URL, $url);
+      			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+      			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+      			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+      			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      			$response  = curl_exec($ch);
+      			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+       			if ($response === FALSE) {
+      				$errors[] = "An unexpected failure occurred contacting the web service.";
+      			} else {
+       				if($httpCode == 400) {
+      					// JSON was double-encoded, so it needs to be double decoded
+      					$errorsList = json_decode(json_decode($response))->errors;
+      					foreach ($errorsList as $err) {
+      						$errors[] = $err;
+      					}
+      					if (sizeof($errors) == 0) {
+      						$errors[] = "Bad input";
+      					}
+       				} else if($httpCode == 500) {
+       					$errorsList = json_decode(json_decode($response))->errors;
+      					foreach ($errorsList as $err) {
+      						$errors[] = $err;
+      					}
+      					if (sizeof($errors) == 0) {
+      						$errors[] = "Server error";
+      					}
+       				} else if($httpCode == 200) {
+                if ($response == 0) {
+                  $errors[] = "An unexpected error occurred supdating the password.";
+                  $this->debug('Database could not find userid');
+                  $this->auditlog("updateUserPassword error when finding userid", "userid: $userid");
+                } else if($response == 1) {
+                  $this->auditlog("updateUserPassword", "success");
+                } else {
+                  $errors[] = $response;
+                  $this->debug("Unexpected API response");
+                  $this->auditlog("updateUserPassword", "Invalid request: $userid");
+                }
+              }
             }
-
-            // Close the connection
-            $dbh = NULL;
+            curl_close($ch);
 
         } else {
 
