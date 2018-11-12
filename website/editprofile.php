@@ -22,7 +22,7 @@ $isadminFlag = FALSE;
 $sessionid = $_COOKIE['sessionid'];
 $user = $app->getSessionUser($sessionid, $errors);
 $loggedinuserid = $user["userid"];
-
+$registrations = "empty";
 // If someone is accessing this page for the first time, try and grab the userid from the GET request
 // then pull the user's details from the database
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -46,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 		$email = $user['email'];
 		$isadminFlag = ($user['isadmin'] == "1");
 		$password = "";
+		$registrations = getUserRegistrations($userid, $errors);
 	}
 
 // If someone is attempting to edit their profile, process the request
@@ -102,7 +103,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 			<input type="password" name="password" id="password" placeholder="Enter a password" value="<?php echo $password; ?>" /> (optional)
 			<br/>
 			<input type="text" name="email" id="email" placeholder="Enter your email" size="40" value="<?php echo $email; ?>" />
-			<?php if ($loggedinuserid != $userid) { ?>
+			<?php
+				if($registrations != 'empty'){
+					foreach($registrations as $code){
+						?>
+							<p>
+								<?php echo $code; ?>
+							</p>
+						<?php
+					}
+				}
+				if ($loggedinuserid != $userid) { ?>
 			<br/>
 			<input type="checkbox" name="isadmin" id="isadmin" <?php echo ($isadminFlag ? "checked=checked" : ""); ?> value="isadmin" />
 			<label for="isadmin">Grant admin rights</label>
