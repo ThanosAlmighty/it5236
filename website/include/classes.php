@@ -403,37 +403,44 @@ class Application {
         // Assume an empty list of regs
         $regs = array();
 
-        // Connect to the database
-        $dbh = $this->getConnection();
+		$url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getUserRegistrations?userid=" . $userid;
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$response  = curl_exec($ch);
+		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        // Construct a SQL statement to perform the select operation
-        $sql = "SELECT registrationcode FROM userregistrations WHERE userid = :userid";
+		if ($response === FALSE) {
+			$errors[] = "An unexpected failure occurred contacting the web service.";
+		} else {
+			if($httpCode == 400) {
 
-        // Run the SQL select and capture the result code
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindParam(':userid', $userid);
-        $result = $stmt->execute();
+				// JSON was double-encoded, so it needs to be double decoded
+				$errorsList = json_decode(json_decode($response))->errors;
+				foreach ($errorsList as $err) {
+					$errors[] = $err;
+				}
+				if (sizeof($errors) == 0) {
+					$errors[] = "Bad input";
+				}
+			} else if($httpCode == 500) {
+				$errorsList = json_decode(json_decode($response))->errors;
+				foreach ($errorsList as $err) {
+					$errors[] = $err;
+				}
+				if (sizeof($errors) == 0) {
+					$errors[] = "Server error";
+				}
+			} else if($httpCode == 200) {
+	          $this->auditlog("getUserRegistrations", "web service response => " . $response);
+				    $regs = json_decode($response)->userregistrations;
+		        $this->auditlog("getUserRegistrations", "success");
+			}
+		}
 
-        // If the query did not run successfully, add an error message to the list
-        if ($result === FALSE) {
-
-            $errors[] = "An unexpected error occurred getting the regs list.";
-            $this->debug($stmt->errorInfo());
-            $this->auditlog("getUserRegistrations error", $stmt->errorInfo());
-
-            // If the query ran successfully, then get the list of users
-        } else {
-
-            // Get all the rows
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $regs = array_column($rows, 'registrationcode');
-            $this->auditlog("getUserRegistrations", "success");
-
-        }
-
-        // Close the connection
-        $dbh = NULL;
-
+		curl_close($ch);
         // Return the list of users
         return $regs;
     }
