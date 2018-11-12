@@ -110,9 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 			<br/>
 			<input type="submit" value="Update profile" />
 		</form>
-		<table border="1">
+		<table border="1" style="background-color: white;">
 			<tr>
-				<th>
+				<th style="background-color: grey;">
 					Registraion Codes
 				</th>
 			</tr>
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 				foreach($registrations as $code){
 		?>
 			<tr>
-				<td>
+				<td style="color: #3F3250;">
 					<?php echo $code; ?>
 				</td>
 			</tr>
