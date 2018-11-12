@@ -114,9 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 					}
 				}
 				if ($loggedinuserid != $userid) { ?>
-			<br/>
-			<input type="checkbox" name="isadmin" id="isadmin" <?php echo ($isadminFlag ? "checked=checked" : ""); ?> value="isadmin" />
-			<label for="isadmin">Grant admin rights</label>
+					<br/>
+					<input type="checkbox" name="isadmin" id="isadmin" <?php echo ($isadminFlag ? "checked=checked" : ""); ?> value="isadmin" />
+					<label for="isadmin">Grant admin rights</label>
 			<?php } ?>
 			<br/>
 			<input type="submit" value="Update profile" />
