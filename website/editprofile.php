@@ -110,6 +110,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 			<br/>
 			<input type="submit" value="Update profile" />
 		</form>
+		<table border="1">
+			<tr>
+				<th>
+					Registraion Codes
+				</th>
+			</tr>
+		<?php
+			if($registrations != 'empty'){
+				foreach($registrations as $code){
+		?>
+			<tr>
+				<td>
+					<?php echo $code; ?>
+				</td>
+			</tr>
+		<?php
+				}
+			}
+		?>
+	</table>
 	</div>
 	<?php include 'include/footer.php'; ?>
 	<script src="js/site.js"></script>
