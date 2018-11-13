@@ -564,7 +564,7 @@ class Application {
 
         // Get the session id cookie from the browser
         $sessionid = NULL;
-        $user = NULL;
+        $user_array = NULL;
 
         // Check for a valid session ID
         if (isset($_COOKIE['sessionid'])) {
@@ -608,13 +608,14 @@ class Application {
        				} else if($httpCode == 200) {
                 if(!empty($response)) {
                   $user = json_decode($response);
+                  $user_array = ["usersessionid"=>$user->usersessionid, "userid"=>$user->userid, "email"=>$user->email, "username"=>$user->username, "registrationcode"=>$user->registrationcode, "isadmin"=>$user->isadmin];
                 }
               }
             }
           }
 
 
-        return $user;
+        return $user_array;
 
     }
 
