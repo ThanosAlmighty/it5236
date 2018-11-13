@@ -571,41 +571,48 @@ class Application {
 
             $sessionid = $_COOKIE['sessionid'];
 
-            // Connect to the database
-            $dbh = $this->getConnection();
-
-            // Construct a SQL statement to perform the insert operation
-            $sql = "SELECT usersessionid, usersessions.userid, email, username, usersessions.registrationcode, isadmin " .
-                "FROM usersessions " .
-                "LEFT JOIN users on usersessions.userid = users.userid " .
-                "WHERE usersessionid = :sessionid AND expires > now()";
-
-            // Run the SQL select and capture the result code
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindParam(":sessionid", $sessionid);
-            $result = $stmt->execute();
-
-            // If the query did not run successfully, add an error message to the list
-            if ($result === FALSE) {
-
-                $errors[] = "An unexpected error occurred";
-                $this->debug($stmt->errorInfo());
-
-                // In order to prevent recursive calling of audit log function
-                if (!$suppressLog){
-                    $this->auditlog("session error", $stmt->errorInfo());
+            // Connect to the API
+            $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getSessionUser?sessionid=$sessionid";
+       			$ch = curl_init();
+      			curl_setopt($ch, CURLOPT_URL, $url);
+      			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+      			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+      			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      			$response  = curl_exec($ch);
+      			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+       			if ($response === FALSE) {
+              $errors[] = "An unexpected error occurred";
+              $this->debug('Server Error');
+              // In order to prevent recursive calling of audit log function
+              if (!$suppressLog){
+                  $this->auditlog("session error", "nothing returned from my server");
+              }
+      			} else {
+       				if($httpCode == 400) {
+      					// JSON was double-encoded, so it needs to be double decoded
+      					$errorsList = json_decode(json_decode($response))->errors;
+      					foreach ($errorsList as $err) {
+      						$errors[] = $err;
+      					}
+      					if (sizeof($errors) == 0) {
+      						$errors[] = "Bad input";
+      					}
+       				} else if($httpCode == 500) {
+       					$errorsList = json_decode(json_decode($response))->errors;
+      					foreach ($errorsList as $err) {
+      						$errors[] = $err;
+      					}
+      					if (sizeof($errors) == 0) {
+      						$errors[] = "Server error";
+      					}
+       				} else if($httpCode == 200) {
+                if(!empty($response)) {
+                  $user = json_decode($response);
                 }
-
-            } else {
-
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+              }
             }
+          }
 
-            // Close the connection
-            $dbh = NULL;
-
-        }
 
         return $user;
 
