@@ -606,9 +606,9 @@ class Application {
       						$errors[] = "Server error";
       					}
        				} else if($httpCode == 200) {
+                $user = json_decode($response);
                 if(!empty($response)) {
-                  $user = json_decode($response);
-                  $user_array = ["usersessionid"=>$user[0]->usersessionid, "userid"=>$user->userid, "email"=>$user[0]->email, "username"=>$user[0]->username, "registrationcode"=>$user[0]->registrationcode, "isadmin"=>$user[0]->isadmin];
+                  $user_array = ["usersessionid"=>$user[0]->usersessionid, "userid"=>$user[0]->userid, "email"=>$user[0]->email, "username"=>$user[0]->username, "registrationcode"=>$user[0]->registrationcode, "isadmin"=>$user[0]->isadmin];
                 }
               }
             }
