@@ -536,6 +536,7 @@ class Application {
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       $response  = curl_exec($ch);
       $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      curl_close($ch);
       if ($response === FALSE) {
         $errors[] = "An unexpected failure occurred contacting the web service.";
       } else {
@@ -580,6 +581,7 @@ class Application {
       			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       			$response  = curl_exec($ch);
       			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
        			if ($response === FALSE) {
               $errors[] = "An unexpected error occurred";
               $this->debug('Server Error');
@@ -637,6 +639,7 @@ class Application {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response  = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
         if ($response === FALSE) {
           $errors[] = "An unexpected error occurred";
           $this->debug('Server Error');
