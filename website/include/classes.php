@@ -828,8 +828,8 @@ class Application {
          					$result = json_decode($response);
                   if ($result === 0) {
 
-                      $this->debug($stmt->errorInfo());
-                      $this->auditlog("logout error", $stmt->errorInfo());
+                      $this->debug("could not delete from database");
+                      $this->auditlog("logout error", "could not delete from database");
 
 
                       // If the query ran successfully, then the logout succeeded
