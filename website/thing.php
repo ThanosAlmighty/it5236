@@ -24,10 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 	// If there were no errors getting the topic, try to get the comments
 	if (sizeof($errors) == 0) {
-
-		// Attempt to obtain the comments for this topic
-		$thing = $app->getThing($thingid, $errors);
-
 		// If the thing loaded successfully, load the associated comments
 		if (isset($thing)) {
 			$comments = $app->getComments($thing['thingid'], $errors);
@@ -90,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 	<?php include 'include/header.php'; ?>
 	<div class="breadcrumbs">
-		<a href="list.php">Back to item list<?php echo $_GET['thingid']; ?></a>
+		<a href="list.php">Back to item list</a>
 	</div>
 
 	<?php include('include/messages.php'); ?>
