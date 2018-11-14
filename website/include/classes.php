@@ -1012,42 +1012,61 @@ class Application {
         if (sizeof($errors) == 0){
 
             // Connect to the database
-            $dbh = $this->getConnection();
-
-            // Construct a SQL statement to perform the select operation
-            $sql = "SELECT things.thingid, things.thingname, convert_tz(things.thingcreated,@@session.time_zone,'America/New_York') as thingcreated, things.thinguserid, things.thingattachmentid, things.thingregistrationcode, username, filename " .
-                "FROM things LEFT JOIN users ON things.thinguserid = users.userid " .
-                "LEFT JOIN attachments ON things.thingattachmentid = attachments.attachmentid " .
-                "WHERE thingid = :thingid";
-
-            // Run the SQL select and capture the result code
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindParam(":thingid", $thingid);
-            $result = $stmt->execute();
-
-            // If the query did not run successfully, add an error message to the list
-            if ($result === FALSE) {
-
-                $errors[] = "An unexpected error occurred.";
-                $this->debug($stmt->errorInfo());
-                $this->auditlog("getthing error", $stmt->errorInfo());
-
-                // If no row returned then the thing does not exist in the database.
-            } else if ($stmt->rowCount() == 0) {
-
-                $errors[] = "Thing not found";
-                $this->auditlog("getThing", "bad thing id: $thingid");
-
-                // If the query ran successfully and row was returned, then get the details of the thing
+            $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getThing?thingid=".$thingid;
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response  = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($response === FALSE) {
+              $errors[] = "An unexpected error occurred";
+              $this->debug('Server Error');
+              // In order to prevent recursive calling of audit log function
+              if (!$suppressLog){
+                  $this->auditlog("session error", "nothing returned from server");
+              }
             } else {
+              if($httpCode == 400) {
+                // JSON was double-encoded, so it needs to be double decoded
+                $errorsList = json_decode(json_decode($response))->errors;
+                foreach ($errorsList as $err) {
+                  $errors[] = $err;
+                }
+                if (sizeof($errors) == 0) {
+                  $errors[] = "Bad input";
+                }
+              } else if($httpCode == 500) {
+                $errorsList = json_decode(json_decode($response))->errors;
+                foreach ($errorsList as $err) {
+                  $errors[] = $err;
+                }
+                if (sizeof($errors) == 0) {
+                  $errors[] = "Server error";
+                }
+              } else if($httpCode == 200) {
+                // If the query did not run successfully, add an error message to the list
+                $thing_object = json_decode($response);
+                if ($reponse === FALSE) {
 
-                // Get the thing
-                $thing = $stmt->fetch();
+                    $errors[] = "An unexpected error occurred.";
+                    $this->debug('');
+                    $this->auditlog("getthing error", $stmt->errorInfo());
 
+                    // If no row returned then the thing does not exist in the database.
+                } else if(!empty($thing_object)){
+                  $thing = array("thingid"=>$thing_object->thingid,"thingname"=>$thing_object->thingname,"thingcreated"=>$thing_object->thingcreated, "thingattachmentid"=>$thing_object->thingattachmentid, "thinguserid"=>$thing_object->thinguserid, "thingregistrationcode"=>$thing_object->thingregistrationcode,"username"=>$thing_object->username,"filename"=>$thing_object->filename);
+                } else {
+
+                    $errors[] = "Thing not found";
+                    $this->auditlog("getThing", "bad thing id: $thingid");
+
+                    // If the query ran successfully and row was returned, then get the details of the thing
+                }
+              }
             }
-
-            // Close the connection
-            $dbh = NULL;
 
         } else {
             $this->auditlog("getThing validation error", $errors);
