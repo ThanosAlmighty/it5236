@@ -664,11 +664,11 @@ class Application {
             }
           } else if($httpCode == 200) {
             // If the query did not run successfully, add an error message to the list
-            if ($reponse === FALSE) {
+            if ($reponse == 0) {
 
                 $errors[] = "An unexpected error occurred";
-                $this->debug($stmt->errorInfo());
-                $this->auditlog("isadmin error", $stmt->errorInfo());
+                $this->debug('invalid userid');
+                $this->auditlog("isadmin error", 'invalid userid');
 
                 return FALSE;
 
