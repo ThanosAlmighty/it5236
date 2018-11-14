@@ -642,7 +642,7 @@ class Application {
           $this->debug('Server Error');
           // In order to prevent recursive calling of audit log function
           if (!$suppressLog){
-              $this->auditlog("session error", "nothing returned from my server");
+              $this->auditlog("session error", "nothing returned from server");
           }
         } else {
           if($httpCode == 400) {
@@ -666,7 +666,7 @@ class Application {
             // If the query did not run successfully, add an error message to the list
             if ($reponse == 0) {
 
-                $errors[] = "An unexpected error occurred";
+                $errors[] = "An unexpected error occurred2";
                 $this->debug('invalid userid');
                 $this->auditlog("isadmin error", 'invalid userid');
 
