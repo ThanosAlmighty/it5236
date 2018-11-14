@@ -864,6 +864,7 @@ class Application {
         $userid = $user["userid"];
         $sessionid = $user['usersessionid'];
 
+        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/user_OTP_rows?sessionid=".$sessionid;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
