@@ -864,15 +864,44 @@ class Application {
         $userid = $user["userid"];
         $sessionid = $user['usersessionid'];
 
-        $dbh = $this->getConnection();
-
-        $sql = "SELECT sessionid FROM OTP WHERE sessionid = :sessionid";
-
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindParam(":sessionid", $sessionid);
-        $stmt->execute();
-        $OTP_verification = $stmt->rowCount();
-        $dbh = NULL;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response  = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($response === FALSE) {
+          $errors[] = "An unexpected error occurred";
+          $this->debug('Server Error');
+          // In order to prevent recursive calling of audit log function
+          if (!$suppressLog){
+              $this->auditlog("session error", "nothing returned from server");
+          }
+        } else {
+          if($httpCode == 400) {
+            // JSON was double-encoded, so it needs to be double decoded
+            $errorsList = json_decode(json_decode($response))->errors;
+            foreach ($errorsList as $err) {
+              $errors[] = $err;
+            }
+            if (sizeof($errors) == 0) {
+              $errors[] = "Bad input";
+            }
+          } else if($httpCode == 500) {
+            $errorsList = json_decode(json_decode($response))->errors;
+            foreach ($errorsList as $err) {
+              $errors[] = $err;
+            }
+            if (sizeof($errors) == 0) {
+              $errors[] = "Server error";
+            }
+          } else if($httpCode == 200) {
+            // If the query did not run successfully, add an error message to the list
+            $OTP_verification = $response;
+          }
+        }
 
         // If there is no user ID in the session, then the user is not logged in
         if(empty($userid)) {
