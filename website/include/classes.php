@@ -674,7 +674,6 @@ class Application {
 
             } else {
 
-                $row = $stmt->fetch();
                 $isadmin = json_decode($response)[0]->isadmin;
 
                 // Return the isAdmin flag
