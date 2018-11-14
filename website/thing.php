@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 	<?php include 'include/header.php'; ?>
 	<div class="breadcrumbs">
-		<a href="list.php">Back to item list</a>
+		<a href="list.php">Back to item list<?php echo $_GET['thingid']; ?></a>
 	</div>
 
 	<?php include('include/messages.php'); ?>
