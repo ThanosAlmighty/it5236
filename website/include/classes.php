@@ -666,7 +666,7 @@ class Application {
             // If the query did not run successfully, add an error message to the list
             if ($reponse == 0) {
 
-                $errors[] = "An unexpected error occurred2";
+                $errors[] = "An unexpected error occurred $userid";
                 $this->debug('invalid userid');
                 $this->auditlog("isadmin error", 'invalid userid');
 
