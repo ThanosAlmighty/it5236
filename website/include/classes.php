@@ -943,38 +943,55 @@ class Application {
         // Assume an empty list of things
         $things = array();
 
-        // Connect to the database
-        $dbh = $this->getConnection();
-
         // Get the user id from the session
         $user = $this->getSessionUser($errors);
         $registrationcode = $user["registrationcode"];
 
-        // Construct a SQL statement to perform the select operation
-        $sql = "SELECT thingid, thingname, convert_tz(things.thingcreated,@@session.time_zone,'America/New_York') as thingcreated, thinguserid, thingattachmentid, thingregistrationcode FROM things LEFT JOIN users ON things.thinguserid = users.userid WHERE thingregistrationcode = :registrationcode ORDER BY things.thingcreated ASC";
-
-        // Run the SQL select and capture the result code
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindParam(":registrationcode", $registrationcode);
-        $result = $stmt->execute();
-
-        // If the query did not run successfully, add an error message to the list
-        if ($result === FALSE) {
-
-            $errors[] = "An unexpected error occurred.";
-            $this->debug($stmt->errorInfo());
-            $this->auditlog("getthings error", $stmt->errorInfo());
-
-            // If the query ran successfully, then get the list of things
+        // Connect to the API
+        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getThings?registrationcode=".$registrationcode;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response  = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($response === FALSE) {
+          $errors[] = "An unexpected error occurred";
+          $this->debug('Server Error');
+          // In order to prevent recursive calling of audit log function
+          if (!$suppressLog){
+              $this->auditlog("session error", "nothing returned from server");
+          }
         } else {
-
-            // Get all the rows
-            $things = $stmt->fetchAll();
-
+          if($httpCode == 400) {
+            // JSON was double-encoded, so it needs to be double decoded
+            $errorsList = json_decode(json_decode($response))->errors;
+            foreach ($errorsList as $err) {
+              $errors[] = $err;
+            }
+            if (sizeof($errors) == 0) {
+              $errors[] = "Bad input";
+            }
+          } else if($httpCode == 500) {
+            $errorsList = json_decode(json_decode($response))->errors;
+            foreach ($errorsList as $err) {
+              $errors[] = $err;
+            }
+            if (sizeof($errors) == 0) {
+              $errors[] = "Server error";
+            }
+          } else if($httpCode == 200) {
+            // If the query did not run successfully, add an error message to the list
+            $things_object = json_decode($response);
+            if(!empty($things_object)){
+              foreach($things_object as $obj){
+                $things[] = array("thingid"=>$obj->thingid,"thingname"=>$obj->thingname,"thingcreated"=>$obj->thingcreated, "thingattachmentid"=>$obj->thingattachmentid, "thinguserid"=>$obj->thinguserid, "thingregistrationcode"=>$obj->thingregistrationcode);
+              }
+            }
+          }
         }
-
-        // Close the connection
-        $dbh = NULL;
 
         // Return the list of things
         return $things;
