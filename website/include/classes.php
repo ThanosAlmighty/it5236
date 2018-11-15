@@ -1021,7 +1021,7 @@ class Application {
 
                     // If no row returned then the thing does not exist in the database.
                 } else if(!empty($thing_object)){
-                  $thing = array("thingid"=>$thing_object->thingid,"thingname"=>$thing_object[0]->thingname,"thingcreated"=>$thing_object[0]->thingcreated, "thingattachmentid"=>$thing_object[0]->thingattachmentid, "thinguserid"=>$thing_object[0]->thinguserid, "thingregistrationcode"=>$thing_object[0]->thingregistrationcode,"username"=>$thing_object[0]->username,"username"=>$thing_object[0]->filename);
+                  $thing = array("thingid"=>$thing_object->thingid,"thingname"=>$thing_object[0]->thingname,"thingcreated"=>$thing_object[0]->thingcreated, "thingattachmentid"=>$thing_object[0]->thingattachmentid, "thinguserid"=>$thing_object[0]->thinguserid, "thingregistrationcode"=>$thing_object[0]->thingregistrationcode,"username"=>$thing_object[0]->username,"filename"=>$thing_object[0]->filename);
                 } else {
 
                     $errors[] = "Thing not found";
