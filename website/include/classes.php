@@ -64,7 +64,7 @@ class Application {
         }
 
         $ipaddress = $_SERVER["REMOTE_ADDR"];
-
+        var_dump($message);
         if (is_array($message)){
             $message = implode( ",", $message);
         }
