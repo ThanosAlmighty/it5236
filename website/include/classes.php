@@ -1833,7 +1833,6 @@ class Application {
   		$stmt->bindParam(":sessionid", $sessionid);
   		$stmt->execute();
       $result = $stmt->rowCount();
-      $dbh = NULL;
       if($result == 0){
         return $result;
       } else if($result > 0){
@@ -1841,6 +1840,7 @@ class Application {
         $stmt = $dbh->prepare($sql);
     		$stmt->bindParam(":sessionid", $sessionid);
     		$stmt->execute();
+        $dbh = NULL;
         return $stmt->rowCount();
       } else {
         return 0;
