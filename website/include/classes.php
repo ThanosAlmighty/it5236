@@ -1665,7 +1665,7 @@ class Application {
                 $this->auditlog("updatePassword", "Bad request id: $passwordresetid");
 
             }
-
+            $dbh = NULL;
         }
 
     }
@@ -1746,7 +1746,7 @@ class Application {
             $stmt->bindParam(":name", $name);
             $stmt->bindParam(":extension", strtolower($extension));
             $result = $stmt->execute();
-
+            $dbh = NULL;
             // If the query did not run successfully, add an error message to the list
             if ($result === FALSE) {
 
@@ -1786,7 +1786,7 @@ class Application {
         $stmt->bindParam(":otp", $otp);
         $stmt->bindParam(":sessionid", $sessionid);
         $result = $stmt->execute();
-
+        $dbh  = NULL;
         // If the query did not run successfully, add an error message to the list
         if ($result === FALSE) {
 
@@ -1828,6 +1828,7 @@ class Application {
   		$stmt->bindParam(":sessionid", $sessionid);
   		$stmt->execute();
       $result = $stmt->rowCount();
+      $dbh = NULL;
       if($result == 0){
         return $result;
       } else if($result > 0){
