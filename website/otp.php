@@ -4,9 +4,10 @@
 	$app = new Application();
 	$app->setup();
 
+	$errors = array();
+	
 	$app->protectPage($errors, FALSE, TRUE);
 
-	$errors = array();
 	$otp = '';
 	$sessionid = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
