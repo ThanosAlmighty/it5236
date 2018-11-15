@@ -605,7 +605,7 @@ class Application {
        				} else if($httpCode == 200) {
                 $user = json_decode($response);
                 if(!empty($response)) {
-                  $user_array = ["usersessionid"=>$user[0]->usersessionid, "userid"=>$user[0]->userid, "email"=>$user[0]->email, "username"=>$user[0]->username, "registrationcode"=>$user[0]->registrationcode, "isadmin"=>$user[0]->isadmin, "otp"=>$user[0]->otp];
+                  $user_array = array("usersessionid"=>$user[0]->usersessionid, "userid"=>$user[0]->userid, "email"=>$user[0]->email, "username"=>$user[0]->username, "registrationcode"=>$user[0]->registrationcode, "isadmin"=>$user[0]->isadmin, "otp"=>$user[0]->otp);
                 }
               }
             }
