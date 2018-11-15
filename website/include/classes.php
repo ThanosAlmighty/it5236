@@ -970,7 +970,7 @@ class Application {
 
         // Check for a valid thing ID
         if (empty($thingid)){
-            $errors[] = "Missing thing ID";
+            $errors[] = "Missing thing ID getThing";
         }
 
         if (sizeof($errors) == 0){
@@ -1051,7 +1051,7 @@ class Application {
         if (empty($thingid)) {
 
             // Add an appropriate error message to the list
-            $errors[] = "Missing thing ID";
+            $errors[] = "Missing thing ID getComments";
             $this->auditlog("getComments validation error", $errors);
 
         } else {
@@ -1259,7 +1259,7 @@ class Application {
             $errors[] = "Missing user ID. Not logged in?";
         }
         if (empty($thingid)) {
-            $errors[] = "Missing thing ID";
+            $errors[] = "Missing thing ID addComment";
         }
         if (empty($text)) {
             $errors[] = "Missing comment text";
