@@ -571,7 +571,7 @@ class Application {
             $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getSessionUser?sessionid=$sessionid";
        			$ch = curl_init();
       			curl_setopt($ch, CURLOPT_URL, $url);
-      			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+      			curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k'));
       			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
       			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       			$response  = curl_exec($ch);
@@ -629,7 +629,7 @@ class Application {
         $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/isAdmin?userid=".$userid;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k'));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response  = curl_exec($ch);
@@ -704,7 +704,7 @@ class Application {
             $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/login_user?username=$e_usr";
        			$ch = curl_init();
       			curl_setopt($ch, CURLOPT_URL, $url);
-      			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+      			curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k'));
       			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
       			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       			$response  = curl_exec($ch);
@@ -857,6 +857,7 @@ class Application {
           $userid = $user["userid"];
           $sessionid = $user['usersessionid'];
           $OTP_verification = $user['otp'];
+          $this->auditlog("protect page", $OTP_verification);
         }
 
         // If there is no user ID in the session, then the user is not logged in
@@ -910,7 +911,7 @@ class Application {
         $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getThings?registrationcode=".$registrationcode;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k'));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response  = curl_exec($ch);
@@ -974,7 +975,7 @@ class Application {
             $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getThing?thingid=".$thingid;
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k'));
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $response  = curl_exec($ch);
