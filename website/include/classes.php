@@ -595,7 +595,7 @@ class Application {
       						$errors[] = "Bad input";
       					}
        				} else if($httpCode == 500) {
-       					$errorsList = json_decode(json_decode($response))->errors;
+       					$errorsList = json_decode($response)->errors;
       					foreach ($errorsList as $err) {
       						$errors[] = $err;
       					}
