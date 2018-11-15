@@ -1047,8 +1047,6 @@ class Application {
         // Assume an empty list of comments
         $comments = array();
 
-
-
         // Check for a valid thing ID
         if (empty($thingid)) {
 

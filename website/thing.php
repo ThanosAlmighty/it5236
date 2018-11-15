@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 	// Get the topic id from the URL
 	$thingid = $_GET['thingid'];
+	$app->auditlog("thing.php", $_GET['thingid']);
 
 	// Attempt to obtain the topic
 	$thing = $app->getThing($thingid, $errors);
