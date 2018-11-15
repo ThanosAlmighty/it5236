@@ -675,8 +675,8 @@ class Application {
                 return FALSE;
 
             } else {
-
-                $isadmin = json_decode($response)[0]->isadmin;
+                $flag = json_decode($response);
+                $isadmin = $flag[0]->isadmin;
 
                 // Return the isAdmin flag
                 return $isadmin == 1;
