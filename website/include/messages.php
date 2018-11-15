@@ -1,6 +1,7 @@
 <?php if (isset($errors) && sizeof($errors) > 0) { ?>
 			<div class="error">The following errors were encountered:
 	<?php
+				var_dump($errors);
 				foreach ($errors as $error) {
 					echo "<br/>";
 					echo "&bullet; $error";
@@ -12,10 +13,7 @@
 
 
 <?php if (isset($message)) { ?>
-			<div class="message"> 
+			<div class="message">
 			<?php echo $message; ?>
 			</div>
 <?php } ?>
-
-
-
