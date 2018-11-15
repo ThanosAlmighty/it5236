@@ -662,7 +662,7 @@ class Application {
             }
           } else if($httpCode == 200) {
             // If the query did not run successfully, add an error message to the list
-            if ($reponse === 0) {
+            if ($response === 0) {
 
                 $errors[] = "An unexpected error occurred";
                 $this->debug('invalid userid');
