@@ -150,6 +150,7 @@ class Application {
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			$response  = curl_exec($ch);
 			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      curl_close($ch);
  			if ($response === FALSE) {
 				$errors[] = "An unexpected failure occurred contacting the web service.";
 			} else {
@@ -176,7 +177,6 @@ class Application {
  				}
  			}
 
-			curl_close($ch);
          } else {
             $this->auditlog("register validation error", $errors);
         }
@@ -212,6 +212,7 @@ class Application {
   			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   			$response  = curl_exec($ch);
   			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
    			if ($response === FALSE) {
   				$errors[] = "An unexpected failure occurred contacting the web service.";
   			} else {
@@ -257,9 +258,6 @@ class Application {
             }
    				}
    			}
-
-  			curl_close($ch);
-
     }
 
     // Send an email to validate the address
@@ -281,6 +279,7 @@ class Application {
   			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   			$response  = curl_exec($ch);
   			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
    			if ($response === FALSE) {
   				$errors[] = "An unexpected failure occurred contacting the web service.";
   			} else {
@@ -314,7 +313,6 @@ class Application {
             }
           }
         }
-        curl_close($ch);
         return $success;
     }
 
@@ -356,6 +354,7 @@ class Application {
       			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       			$response  = curl_exec($ch);
       			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
        			if ($response === FALSE) {
       				$errors[] = "An unexpected failure occurred contacting the web service.";
       			} else {
@@ -391,8 +390,6 @@ class Application {
                 }
        				}
        			}
-
-      			curl_close($ch);
             return $return_value;
         }
 
@@ -411,7 +408,7 @@ class Application {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$response  = curl_exec($ch);
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
+    curl_close($ch);
 		if ($response === FALSE) {
 			$errors[] = "An unexpected failure occurred contacting the web service.";
 		} else {
@@ -439,8 +436,6 @@ class Application {
 		        $this->auditlog("getUserRegistrations", "success");
 			}
 		}
-
-		curl_close($ch);
         // Return the list of users
         return $regs;
     }
@@ -471,6 +466,7 @@ class Application {
       			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       			$response  = curl_exec($ch);
       			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
        			if ($response === FALSE) {
       				$errors[] = "An unexpected failure occurred contacting the web service.";
       			} else {
@@ -505,7 +501,6 @@ class Application {
                 }
               }
             }
-            curl_close($ch);
 
         } else {
 
@@ -714,6 +709,7 @@ class Application {
       			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       			$response  = curl_exec($ch);
       			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
        			if ($response === FALSE) {
       				$errors[] = "An unexpected failure occurred contacting the web service.";
       			} else {
@@ -769,8 +765,6 @@ class Application {
            		}
            	}
 
-      			curl_close($ch);
-
         } else {
             $this->auditlog("login validation error", $errors);
         }
@@ -804,6 +798,7 @@ class Application {
         			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         			$response  = curl_exec($ch);
         			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+              curl_close($ch);
          			if ($response === FALSE) {
         				$errors[] = "An unexpected failure occurred contacting the web service.";
         			} else {
@@ -842,7 +837,6 @@ class Application {
                   }
          				}
          			}
-        			curl_close($ch);
         }
 
     }
@@ -858,12 +852,12 @@ class Application {
             $this->auditlog("protect page", "no user");
             header("Location: login.php?page=protected");
             exit();
+        } else {
+          // Get the user's ID and MFA status
+          $userid = $user["userid"];
+          $sessionid = $user['usersessionid'];
+          $OTP_verification = $user['otp'];
         }
-
-        // Get the user's ID and MFA status
-        $userid = $user["userid"];
-        $sessionid = $user['usersessionid'];
-        $OTP_verification = $user['otp'];
 
         // If there is no user ID in the session, then the user is not logged in
         if(empty($userid)) {
@@ -879,7 +873,7 @@ class Application {
           header("Location: otp.php");
           exit();
         }
-        if(($otp === TRUE) && ($OTP_verification)) { //if the page is otp.php, but OTP has already been deleted from table, redirect to list.php
+        if(($otp === TRUE) && ($OTP_verification === 1)) { //if the page is otp.php, but OTP has already been deleted from table, redirect to list.php
           $this->auditlog("protect page", "MFA OTP already complete");
           header("Location: list.php");
           exit();
@@ -890,6 +884,7 @@ class Application {
             $isAdminDB = $this->isAdmin($errors, $userid);
 
             if (!$isAdminDB) {
+
 
                 // Redirect the user to the home page
                 $this->auditlog("protect page", "not admin");
