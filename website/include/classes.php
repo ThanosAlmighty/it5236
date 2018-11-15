@@ -873,15 +873,18 @@ class Application {
             header("Location: login.php?page=protected");
             exit();
 
-        } else if(($otp === FALSE) && ($OTP_verification === 0)) { //if the page is not otp.php, verify otp status
+        }
+        if(($otp === FALSE) && ($OTP_verification === 0)) { //if the page is not otp.php, verify otp status
           $this->auditlog("protect page", "MFA OTP not complete");
           header("Location: otp.php");
           exit();
-        } else if(($otp === TRUE) && ($OTP_verification === 1)) { //if the page is otp.php, but OTP has already been deleted from table, redirect to list.php
+        }
+        if(($otp === TRUE) && ($OTP_verification === 1)) { //if the page is otp.php, but OTP has already been deleted from table, redirect to list.php
           $this->auditlog("protect page", "MFA OTP already complete");
           header("Location: list.php");
           exit();
-        } else if ($isAdmin)  {
+        }
+         if ($isAdmin)  {
 
             // Get the isAdmin flag from the database
             $isAdminDB = $this->isAdmin($errors, $userid);
