@@ -879,7 +879,7 @@ class Application {
           header("Location: otp.php");
           exit();
         }
-        if(($otp === TRUE) && ($OTP_verification === 1)) { //if the page is otp.php, but OTP has already been deleted from table, redirect to list.php
+        if(($otp === TRUE) && ($OTP_verification)) { //if the page is otp.php, but OTP has already been deleted from table, redirect to list.php
           $this->auditlog("protect page", "MFA OTP already complete");
           header("Location: list.php");
           exit();
