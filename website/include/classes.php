@@ -975,7 +975,7 @@ class Application {
 
         if (sizeof($errors) == 0){
 
-            // Connect to the database
+            // Connect to the API
             $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getThing?thingid=".$thingid;
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -1056,37 +1056,64 @@ class Application {
 
         } else {
 
-            // Connect to the database
-            $dbh = $this->getConnection();
-
-            // Construct a SQL statement to perform the select operation
-            $sql = "SELECT commentid, commenttext, convert_tz(comments.commentposted,@@session.time_zone,'America/New_York') as commentposted, username, attachmentid, filename " .
-                "FROM comments LEFT JOIN users ON comments.commentuserid = users.userid " .
-                "LEFT JOIN attachments ON comments.commentattachmentid = attachments.attachmentid " .
-                "WHERE commentthingid = :thingid ORDER BY commentposted ASC";
-
-            // Run the SQL select and capture the result code
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindParam(":thingid", $thingid);
-            $result = $stmt->execute();
-
-            // If the query did not run successfully, add an error message to the list
-            if ($result === FALSE) {
-
-                $errors[] = "An unexpected error occurred loading the comments.";
-                $this->debug($stmt->errorInfo());
-                $this->auditlog("getcomments error", $stmt->errorInfo());
-
-                // If the query ran successfully, then get the list of comments
+            // Connect to the API
+            $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getComments?thingid=".$thingid;
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k'));
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response  = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($response === FALSE) {
+              $errors[] = "An unexpected error occurred";
+              $this->debug('Server Error');
+              // In order to prevent recursive calling of audit log function
+              if (!$suppressLog){
+                  $this->auditlog("session error", "nothing returned from server");
+              }
             } else {
+              if($httpCode == 400) {
+                // JSON was double-encoded, so it needs to be double decoded
+                $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+                foreach ($errorsList as $err) {
+                  $errors[] = $err;
+                }
+                if (sizeof($errors) == 0) {
+                  $errors[] = "Bad input";
+                }
+              } else if($httpCode == 500) {
+                $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+                foreach ($errorsList as $err) {
+                  $errors[] = $err;
+                }
+                if (sizeof($errors) == 0) {
+                  $errors[] = "Server error";
+                }
+              } else if($httpCode == 200) {
+                // If the query did not run successfully, add an error message to the list
+                $comments_object = json_decode($response);
+                if ($reponse === FALSE) {
 
-                // Get all the rows
-                $comments = $stmt->fetchAll();
+                    $errors[] = "An unexpected error occurred.";
+                    $this->debug('Query failed to execute');
+                    $this->auditlog("getComments error", "query failed to execute");
 
+                    // If no row returned then the thing does not exist in the database.
+                } else if(!empty($comments_object)){
+                    foreach($comments_object as $obj){
+                      $comments[] = array("commentid"=>$obj->commentid,"commenttext"=>$obj->commenttext,"commentposted"=>$obj->commentposted, "username"=>$obj->username, "attachmentid"=>$obj->attachmentid, "filename"=>$obj->filename);
+                    }
+                } else {
+
+                    $errors[] = "Thing not found";
+                    $this->auditlog("getComments", "bad thing id: $thingid");
+
+                    // If the query ran successfully and row was returned, then get the details of the thing
+                }
+              }
             }
-
-            // Close the connection
-            $dbh = NULL;
 
         }
 
