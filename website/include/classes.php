@@ -1123,7 +1123,7 @@ class Application {
     }
 
     // Handles the saving of uploaded attachments and the creation of a corresponding record in the attachments table.
-    public function saveAttachment($dbh, $attachment, &$errors) {
+    public function saveAttachment($dbh = NULL, $attachment, &$errors) {
 
         $attachmentid = NULL;
 
@@ -1170,29 +1170,54 @@ class Application {
                 $attachmentid = bin2hex(random_bytes(16));
 
                 // Construct a SQL statement to perform the insert operation
-                $sql = "INSERT INTO attachments (attachmentid, filename) VALUES (:attachmentid, :filename)";
-
-                // Run the SQL insert and capture the result code
-                $stmt = $dbh->prepare($sql);
-                $stmt->bindParam(":attachmentid", $attachmentid);
-                $stmt->bindParam(":filename", $filename);
-                $result = $stmt->execute();
-
-                // If the query did not run successfully, add an error message to the list
-                if ($result === FALSE) {
-
-                    $errors[] = "An unexpected error occurred storing the attachment.";
-                    $this->debug($stmt->errorInfo());
-                    $this->auditlog("saveAttachment error", $stmt->errorInfo());
-
-                } else {
-
-                    // Move the file from temp folder to html attachments folder
-                    move_uploaded_file($attachment['tmp_name'], getcwd() . '/attachments/' . $attachmentid . '-' . $attachment['name']);
-                    $attachmentname = $attachment["name"];
-                    $this->auditlog("saveAttachment", "success: $attachmentname");
-
-                }
+                $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/saveAttachment";
+          			$data = array(
+          				'attachmentid'=>$attachmentid,
+          				'filename'=>$filename
+          			);
+          			$data_json = json_encode($data);
+           			$ch = curl_init();
+          			curl_setopt($ch, CURLOPT_URL, $url);
+          			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+          			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+          			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+          			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          			$response  = curl_exec($ch);
+          			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+           			if ($response === FALSE) {
+          				$errors[] = "An unexpected failure occurred contacting the web service.";
+          			} else {
+           				if($httpCode == 400) {
+          					// JSON was double-encoded, so it needs to be double decoded
+          					$errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+          					foreach ($errorsList as $err) {
+          						$errors[] = $err;
+          					}
+          					if (sizeof($errors) == 0) {
+          						$errors[] = "Bad input";
+          					}
+           				} else if($httpCode == 500) {
+           					$errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+          					foreach ($errorsList as $err) {
+          						$errors[] = $err;
+          					}
+          					if (sizeof($errors) == 0) {
+          						$errors[] = "Server error";
+          					}
+           				} else if($httpCode == 200) {
+                    // If the query did not run successfully, add an error message to the list
+                    if ($response == 0) {
+                        $errors[] = "An unexpected error occurred storing the attachment";
+                        $this->debug("Server failed to insert session");
+                        $this->auditlog("saveAttachment error", "Server failed to insert attachment");
+                    } else if($response == 1) {
+                        move_uploaded_file($attachment['tmp_name'], getcwd() . '/attachments/' . $attachmentid . '-' . $attachment['name']);
+                        $attachmentname = $attachment["name"];
+                        $this->auditlog("saveAttachment", "success: $attachmentname");
+                    }
+           				}
+           			}
 
             }
 
