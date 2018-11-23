@@ -1105,12 +1105,6 @@ class Application {
                     foreach($comments_object as $obj){
                       $comments[] = array("commentid"=>$obj->commentid,"commenttext"=>$obj->commenttext,"commentposted"=>$obj->commentposted, "username"=>$obj->username, "attachmentid"=>$obj->attachmentid, "filename"=>$obj->filename);
                     }
-                } else {
-
-                    $errors[] = "Thing not found";
-                    $this->auditlog("getComments", "bad thing id: $thingid");
-
-                    // If the query ran successfully and row was returned, then get the details of the thing
                 }
               }
             }
