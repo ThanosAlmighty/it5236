@@ -1123,7 +1123,7 @@ class Application {
     }
 
     // Handles the saving of uploaded attachments and the creation of a corresponding record in the attachments table.
-    public function saveAttachment($dbh = NULL, $attachment, &$errors) {
+    public function saveAttachment($attachment, &$errors) {
 
         $attachmentid = NULL;
 
@@ -1248,7 +1248,7 @@ class Application {
 
             // Connect to the database
             $dbh = $this->getConnection();
-            $attachmentid = $this->saveAttachment($dbh, $attachment, $errors);
+            $attachmentid = $this->saveAttachment($attachment, $errors);
 
             // Only try to insert the data into the database if the attachment successfully saved
             if (sizeof($errors) == 0) {
@@ -1323,7 +1323,7 @@ class Application {
             // Connect to the database
             $dbh = $this->getConnection();
 
-            $attachmentid = $this->saveAttachment($dbh, $attachment, $errors);
+            $attachmentid = $this->saveAttachment($attachment, $errors);
 
             // Only try to insert the data into the database if the attachment successfully saved
             if (sizeof($errors) == 0) {
