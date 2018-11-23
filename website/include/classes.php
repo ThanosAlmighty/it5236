@@ -1296,8 +1296,6 @@ class Application {
                       $this->auditlog("addthing error", "Could not insert into database");
                     } else if($response == 1) {
                         $this->auditlog("addthing", "success: $name, id = $thingid");
-                    } else {
-
                     }
                   }
                 }
@@ -1337,9 +1335,6 @@ class Application {
         // Only try to insert the data into the database if there are no validation errors
         if (sizeof($errors) == 0) {
 
-            // Connect to the database
-            $dbh = $this->getConnection();
-
             $attachmentid = $this->saveAttachment($attachment, $errors);
 
             // Only try to insert the data into the database if the attachment successfully saved
@@ -1348,33 +1343,57 @@ class Application {
                 // Create a new ID
                 $commentid = bin2hex(random_bytes(16));
 
-                // Add a record to the Comments table
-                // Construct a SQL statement to perform the insert operation
-                $sql = "INSERT INTO comments (commentid, commenttext, commentposted, commentuserid, commentthingid, commentattachmentid) " .
-                "VALUES (:commentid, :text, now(), :userid, :thingid, :attachmentid)";
-
-                // Run the SQL insert and capture the result code
-                $stmt = $dbh->prepare($sql);
-                $stmt->bindParam(":commentid", $commentid);
-                $stmt->bindParam(":text", $text);
-                $stmt->bindParam(":userid", $userid);
-                $stmt->bindParam(":thingid", $thingid);
-                $stmt->bindParam(":attachmentid", $attachmentid);
-                $result = $stmt->execute();
-
-                // If the query did not run successfully, add an error message to the list
-                if ($result === FALSE) {
-                    $errors[] = "An unexpected error occurred saving the comment to the database.";
-                    $this->debug($stmt->errorInfo());
-                    $this->auditlog("addcomment error", $stmt->errorInfo());
+                $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/addComment";
+                $data = array(
+                          "commentid"=> $commentid,
+                          "commenttext"=> $text,
+                          "userid"=> $userid,
+                          "attachmentid"=> $attachmentid,
+                          "thingid"=> $thingid
+                        );
+                $data_json = json_encode($data);
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $response  = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                if ($response === FALSE) {
+                  $errors[] = "An unexpected failure occurred contacting the web service.";
                 } else {
-                    $this->auditlog("addcomment", "success: $commentid");
+                  if($httpCode == 400) {
+                    // JSON was double-encoded, so it needs to be double decoded
+                    $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+                    foreach ($errorsList as $err) {
+                      $errors[] = $err;
+                    }
+                    if (sizeof($errors) == 0) {
+                      $errors[] = "Bad input";
+                    }
+                  } else if($httpCode == 500) {
+                    $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+                    foreach ($errorsList as $err) {
+                      $errors[] = $err;
+                    }
+                    if (sizeof($errors) == 0) {
+                      $errors[] = "Server error";
+                    }
+                  } else if($httpCode == 200) {
+                    // If the query did not run successfully, add an error message to the list
+                    if ($response == 0) {
+                      $errors[] = "An unexpected error occurred adding the comment to the database.";
+                      $this->debug("could not add comment to database");
+                      $this->auditlog("addComment error", "Could not insert into database");
+                    } else if($response == 1) {
+                      $this->auditlog("addcomment", "success: $commentid");
+                    }
+                  }
                 }
 
             }
-
-            // Close the connection
-            $dbh = NULL;
 
         } else {
             $this->auditlog("addcomment validation error", $errors);
