@@ -1413,34 +1413,59 @@ class Application {
         // Assume an empty list of topics
         $users = array();
 
-        // Connect to the database
-        $dbh = $this->getConnection();
-
-        // Construct a SQL statement to perform the select operation
-        $sql = "SELECT userid, username, email, isadmin FROM users ORDER BY username";
-
-        // Run the SQL select and capture the result code
-        $stmt = $dbh->prepare($sql);
-        $result = $stmt->execute();
-
-        // If the query did not run successfully, add an error message to the list
-        if ($result === FALSE) {
-
-            $errors[] = "An unexpected error occurred getting the user list.";
-            $this->debug($stmt->errorInfo());
-            $this->auditlog("getusers error", $stmt->errorInfo());
-
-            // If the query ran successfully, then get the list of users
+        // Connect to the API
+        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/getUsers";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k'));
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response  = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($response === FALSE) {
+          $errors[] = "An unexpected error occurred";
+          $this->debug('Server Error');
+          // In order to prevent recursive calling of audit log function
+          if (!$suppressLog){
+              $this->auditlog("session error", "nothing returned from server");
+          }
         } else {
+          if($httpCode == 400) {
+            // JSON was double-encoded, so it needs to be double decoded
+            $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+            foreach ($errorsList as $err) {
+              $errors[] = $err;
+            }
+            if (sizeof($errors) == 0) {
+              $errors[] = "Bad input";
+            }
+          } else if($httpCode == 500) {
+            $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+            foreach ($errorsList as $err) {
+              $errors[] = $err;
+            }
+            if (sizeof($errors) == 0) {
+              $errors[] = "Server error";
+            }
+          } else if($httpCode == 200) {
+            // If the query did not run successfully, add an error message to the list
+            $users_object = json_decode($response);
+            if ($reponse === FALSE) {
 
-            // Get all the rows
-            $users = $stmt->fetchAll();
-            $this->auditlog("getusers", "success");
+                $errors[] = "An unexpected error occurred.";
+                $this->debug('Query failed to execute');
+                $this->auditlog("getUsers error", "query failed to execute");
 
+                // If no row returned then the thing does not exist in the database.
+            } else if(!empty($users_object)){
+                foreach($users_object as $obj){
+                  $users[] = array("userid"=>$obj->commentid, "username"=>$obj->username, "email"=>$obj->email, "isadmin"=>$obj->isadmin);
+                  $this->auditlog("getusers", "success");
+                }
+            }
+          }
         }
-
-        // Close the connection
-        $dbh = NULL;
 
         // Return the list of users
         return $users;
