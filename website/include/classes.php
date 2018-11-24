@@ -1751,7 +1751,8 @@ class Application {
                   $errors[] = "An unexpected error occurred with the database.";
                   $this->debug("could not add passwordresetid to database");
                   $this->auditlog("resetPassword error", "Could not insert into database");
-                } else if($response == 1) {
+                } else if($response[0] == 1) {
+                  $email = $response[1];
                   $this->auditlog("passwordReset", "Sending message to $email");
 
                   // Send reset email
