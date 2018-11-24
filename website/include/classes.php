@@ -1552,7 +1552,7 @@ class Application {
 
                             // If no row returned then the thing does not exist in the database.
                         } else if(!empty($user_object)){
-                            $user = array("userid"=>$obj[0]->userid, "username"=>$obj[0]->username, "email"=>$obj[0]->email, "isadmin"=>$obj[0]->isadmin);
+                            $user = array("userid"=>$user_object[0]->userid, "username"=>$user_object[0]->username, "email"=>$user_object[0]->email, "isadmin"=>$user_object[0]->isadmin);
                             $this->auditlog("getusers", "success");
                         } else {
 
