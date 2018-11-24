@@ -1461,7 +1461,6 @@ class Application {
             } else if(!empty($users_object)){
                 foreach($users_object as $obj){
                   $users[] = array("userid"=>$obj->userid, "username"=>$obj->username, "email"=>$obj->email, "isadmin"=>$obj->isadmin);
-                  $this->auditlog("getusers", "success");
                 }
             }
           }
