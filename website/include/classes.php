@@ -1620,7 +1620,7 @@ class Application {
                 }
 
                 $this->validateUsername($username, $errors);
-                if(isset($password)){
+                if(isset($password)&&(!empty($password))){
                   $this->validatePassword($password, $errors);
                 }
                 $this->validateEmail($email, $errors);
