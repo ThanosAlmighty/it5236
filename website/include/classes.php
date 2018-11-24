@@ -1747,7 +1747,7 @@ class Application {
                 }
               } else if($httpCode == 200) {
                 // If the query did not run successfully, add an error message to the list
-                if ($response == 0) {
+                if ($response[0] == 0) {
                   $errors[] = "An unexpected error occurred with the database.";
                   $this->debug("could not add passwordresetid to database");
                   $this->auditlog("resetPassword error", "Could not insert into database");
