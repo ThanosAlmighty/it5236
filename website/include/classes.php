@@ -1543,7 +1543,7 @@ class Application {
                         }
                       } else if($httpCode == 200) {
                         // If the query did not run successfully, add an error message to the list
-                        $users_object = json_decode($response);
+                        $user_object = json_decode($response);
                         if ($response === FALSE) {
 
                             $errors[] = "An unexpected error occurred.";
@@ -1551,7 +1551,7 @@ class Application {
                             $this->auditlog("getUser error", "query failed to execute");
 
                             // If no row returned then the thing does not exist in the database.
-                        }  else if(!empty($user_object)){
+                        } else if(!empty($user_object)){
                             $user = array("userid"=>$obj->userid, "username"=>$obj->username, "email"=>$obj->email, "isadmin"=>$obj->isadmin);
                             $this->auditlog("getusers", "success");
                         } else {
