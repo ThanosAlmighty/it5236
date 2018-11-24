@@ -1712,14 +1712,9 @@ class Application {
             // Connect to the API
             $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/passwordReset";
             $data = array(
-                      "passwordresetid"=> $passwordresetid
+                      "passwordresetid"=> $passwordresetid,
+                      "usernameOrEmail"=> $usernameOrEmail
                     );
-            if(isset($email)&&(!empty($email))){
-              $data['email'] = $email;
-            }
-            if(isset($username)&&(!empty($username))){
-              $data['username'] = $username;
-            }
             $data_json = json_encode($data);
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
