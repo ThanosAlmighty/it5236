@@ -1013,7 +1013,7 @@ class Application {
               } else if($httpCode == 200) {
                 // If the query did not run successfully, add an error message to the list
                 $thing_object = json_decode($response);
-                if ($reponse === FALSE) {
+                if ($response === FALSE) {
 
                     $errors[] = "An unexpected error occurred.";
                     $this->debug('');
@@ -1094,7 +1094,7 @@ class Application {
               } else if($httpCode == 200) {
                 // If the query did not run successfully, add an error message to the list
                 $comments_object = json_decode($response);
-                if ($reponse === FALSE) {
+                if ($response === FALSE) {
 
                     $errors[] = "An unexpected error occurred.";
                     $this->debug('Query failed to execute');
@@ -1451,7 +1451,7 @@ class Application {
           } else if($httpCode == 200) {
             // If the query did not run successfully, add an error message to the list
             $users_object = json_decode($response);
-            if ($reponse === FALSE) {
+            if ($response === FALSE) {
 
                 $errors[] = "An unexpected error occurred.";
                 $this->debug('Query failed to execute');
@@ -1544,22 +1544,22 @@ class Application {
                       } else if($httpCode == 200) {
                         // If the query did not run successfully, add an error message to the list
                         $users_object = json_decode($response);
-                        if ($reponse === FALSE) {
+                        if ($response === FALSE) {
 
                             $errors[] = "An unexpected error occurred.";
                             $this->debug('Query failed to execute');
                             $this->auditlog("getUser error", "query failed to execute");
 
                             // If no row returned then the thing does not exist in the database.
-                        } else if ($stmt->rowCount() == 0) {
+                        }  else if(!empty($user_object)){
+                            $user = array("userid"=>$obj->userid, "username"=>$obj->username, "email"=>$obj->email, "isadmin"=>$obj->isadmin);
+                            $this->auditlog("getusers", "success");
+                        } else {
 
                             $errors[] = "Bad userid";
                             $this->auditlog("getuser", "bad userid: $userid");
 
                             // If the query ran successfully and we got back a row, then the request succeeded
-                        } else if(!empty($user_object)){
-                            $user = array("userid"=>$obj->userid, "username"=>$obj->username, "email"=>$obj->email, "isadmin"=>$obj->isadmin);
-                            $this->auditlog("getusers", "success");
                         }
                       }
                     }
