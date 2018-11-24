@@ -1582,7 +1582,6 @@ class Application {
 
         // Assume no user exists for this user id
         $user = NULL;
-
         // Validate the user input
         if (empty($userid)) {
 
@@ -1621,46 +1620,72 @@ class Application {
                     $errors[] = "Missing email;";
                 }
 
+                $this->validateUsername($username, $errors);
+                if(isset($password)){
+                  $this->validatePassword($password, $errors);
+                }
+                $this->validateEmail($email, $errors);
                 // Only try to update the data into the database if there are no validation errors
                 if (sizeof($errors) == 0) {
 
-                    // Connect to the database
-                    $dbh = $this->getConnection();
-
-                    // Hash the user's password
+                  $user_info = array("userid"=>$userid,"username"=>$username,"email"=>$email);
+                  $adminFlag = ($isadminDB ? "1" : "0");
+                  if ($loggedinuserid != $userid) {
+                      $user_info['isadmin'] = $adminFlag;
+                  }
+                  if(isset($password)&&(!empty($password))) {
                     $passwordhash = password_hash($password, PASSWORD_DEFAULT);
+                    $user_info['passwordhash'] = $passwordhash;
+                  }
 
-                    // Construct a SQL statement to perform the select operation
-                    $sql = 	"UPDATE users SET username=:username, email=:email " .
-                        ($loggedinuserid != $userid ? ", isadmin=:isAdmin " : "") .
-                        (!empty($password) ? ", passwordhash=:passwordhash" : "") .
-                        " WHERE userid = :userid";
+                  $success = FALSE;
+                  // Connect to the API
+                  $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/updateUser";
+            			$data_json = json_encode($user_info);
+             			$ch = curl_init();
+            			curl_setopt($ch, CURLOPT_URL, $url);
+            			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+            			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            			$response  = curl_exec($ch);
+            			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                  curl_close($ch);
+             			if ($response === FALSE) {
+            				$errors[] = "An unexpected failure occurred contacting the web service.";
+            			} else {
+             				if($httpCode == 400) {
+            					// JSON was double-encoded, so it needs to be double decoded
+            					$errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+            					foreach ($errorsList as $err) {
+            						$errors[] = $err;
+            					}
+            					if (sizeof($errors) == 0) {
+            						$errors[] = "Bad input";
+            					}
+             				} else if($httpCode == 500) {
+             					$errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+            					foreach ($errorsList as $err) {
+            						$errors[] = $err;
+            					}
+            					if (sizeof($errors) == 0) {
+            						$errors[] = "Server error";
+            					}
+             				} else if($httpCode == 200) {
+                      if ($response == 0) {
+                          $errors[] = "An unexpected error occurred updating the user info";
+                          $this->auditlog("updateUser error", "Update query affected 0 rows");
+                      } else if($response == 1) {
+                        $success = TRUE;
+                        $this->auditlog("updateUser", "success");
+                      } else {
+                        $errors[] = $response;
+                        $this->debug("Unexpected result $response");
+                        $this->auditlog("updateUser", "Invalid request: $userid");
+                      }
+                    }
+                  }
 
-                        // Run the SQL select and capture the result code
-                        $stmt = $dbh->prepare($sql);
-                        $stmt->bindParam(":username", $username);
-                        $stmt->bindParam(":email", $email);
-                        $adminFlag = ($isadminDB ? "1" : "0");
-                        if ($loggedinuserid != $userid) {
-                            $stmt->bindParam(":isAdmin", $adminFlag);
-                        }
-                        if (!empty($password)) {
-                            $stmt->bindParam(":passwordhash", $passwordhash);
-                        }
-                        $stmt->bindParam(":userid", $userid);
-                        $result = $stmt->execute();
-
-                        // If the query did not run successfully, add an error message to the list
-                        if ($result === FALSE) {
-                            $errors[] = "An unexpected error occurred saving the user profile. ";
-                            $this->debug($stmt->errorInfo());
-                            $this->auditlog("updateUser error", $stmt->errorInfo());
-                        } else {
-                            $this->auditlog("updateUser", "success");
-                        }
-
-                        // Close the connection
-                        $dbh = NULL;
                 } else {
                     $this->auditlog("updateUser validation error", $errors);
                 }
@@ -1670,11 +1695,7 @@ class Application {
         }
 
         // Return TRUE if there are no errors, otherwise return FALSE
-        if (sizeof($errors) == 0){
-            return TRUE;
-        } else {
-            return FALSE;
-        }
+        return $success;
     }
 
     // Validates a provided username or email address and sends a password reset email
