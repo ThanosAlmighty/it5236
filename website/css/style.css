@@ -128,6 +128,7 @@ ul.comments {
 ul.comments li {
 	background: url('images/speechbubble_sm2.png') no-repeat left top;
 	background-color: white;
+	border-radius: 25px;
 	height: auto;
 	padding-left: 60px;
 	padding-top: 3px;
