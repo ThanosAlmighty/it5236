@@ -148,6 +148,11 @@ p.footer {
 	margin-top: 50px;
 }
 
+.topictitle {
+	font-size: 200%;
+	font-weight: bold;
+}
+
 @media only screen and (min-width: 800px) {
 	div.search {
 		float: right;
