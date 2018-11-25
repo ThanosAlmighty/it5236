@@ -122,6 +122,7 @@ div.breadcrumbs {
 ul.comments {
 	padding-left: 10px;
 	list-style-type: none;
+	background-color: white;
 }
 
 ul.comments li {
