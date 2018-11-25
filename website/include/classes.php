@@ -69,18 +69,26 @@ class Application {
             $message = implode( ",", $message);
         }
 
-        // Construct a SQL statement to perform the insert operation
-        $sql = "INSERT INTO auditlog (context, message, logdate, ipaddress, userid) " .
-            "VALUES (:context, :message, NOW(), :ipaddress, :userid)";
-
-        // Run the SQL select and capture the result code
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindParam(":context", $context);
-        $stmt->bindParam(":message", $message);
-        $stmt->bindParam(":ipaddress", $ipaddress);
-        $stmt->bindParam(":userid", $userid);
-        $stmt->execute();
-        $dbh = NULL;
+        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/register_user";
+  			$data = array(
+  				'userid'=>$userid,
+  				'username'=>$username,
+  				'passwordHash'=>$passwordhash,
+  				'email'=>$email,
+  				'registrationcode'=>$registrationcode
+  			);
+  			$data_json = json_encode($data);
+   			$ch = curl_init();
+  			curl_setopt($ch, CURLOPT_URL, $url);
+  			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+  			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+  			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+  			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  			$response  = curl_exec($ch);
+        if($response != 1){
+          $this->debug("audit_log response:".json_decode(json_decode($response)->errorMessage)->errors);
+        }
+        curl_close($ch);
 
     }
 
