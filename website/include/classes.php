@@ -69,13 +69,12 @@ class Application {
             $message = implode( ",", $message);
         }
 
-        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/register_user";
+        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/auditlog";
   			$data = array(
   				'userid'=>$userid,
-  				'username'=>$username,
-  				'passwordHash'=>$passwordhash,
-  				'email'=>$email,
-  				'registrationcode'=>$registrationcode
+  				'context'=>$context,
+  				'message'=>$message,
+  				'ipaddress'=>$ipaddress
   			);
   			$data_json = json_encode($data);
    			$ch = curl_init();
@@ -85,7 +84,9 @@ class Application {
   			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
   			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   			$response  = curl_exec($ch);
-        if($response != 1){
+        if($response == 0){
+          $this->debug("audit_log response failed to insert");
+        } else {
           $this->debug("audit_log response:".json_decode(json_decode($response)->errorMessage)->errors);
         }
         curl_close($ch);
