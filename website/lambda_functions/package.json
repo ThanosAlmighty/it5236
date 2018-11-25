@@ -1,0 +1,14 @@
+{
+  "name": "lambda_function",
+  "version": "1.0.0",
+  "description": "Lambda Functions folder for IT 5236",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jonathan Huling",
+  "license": "ISC",
+  "dependencies": {
+    "mysql": "^2.16.0"
+  }
+}
