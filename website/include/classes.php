@@ -2072,7 +2072,7 @@ class Application {
             }
           }
         }
-        
+
       } else {
           $this->auditlog("missing otp parameters", $errors);
           return FALSE;
@@ -2080,27 +2080,57 @@ class Application {
     }
 
     public function verify_otp($otp, $sessionid){
-      $dbh = $this->getConnection();
 
-  		$sql = "DELETE FROM OTP WHERE otp = :otp AND sessionid = :sessionid";
-
-  		$stmt = $dbh->prepare($sql);
-  		$stmt->bindParam(":otp", $otp);
-  		$stmt->bindParam(":sessionid", $sessionid);
-  		$stmt->execute();
-      $result = $stmt->rowCount();
-      if($result == 0){
-        return $result;
-      } else if($result > 0){
-        $sql = "UPDATE usersessions SET otp=1 WHERE usersessionid = :sessionid";
-        $stmt = $dbh->prepare($sql);
-    		$stmt->bindParam(":sessionid", $sessionid);
-    		$stmt->execute();
-        $dbh = NULL;
-        return $stmt->rowCount();
+      $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/verify_otp";
+      $data = array(
+        'otp'=>$otp,
+        'sessionid'=>$sessionid
+      );
+      $data_json = json_encode($data);
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      $response  = curl_exec($ch);
+      $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      curl_close($ch);
+      if ($response === FALSE) {
+        $errors[] = "An unexpected failure occurred contacting the web service.";
       } else {
-        return 0;
+        if($httpCode == 400) {
+          // JSON was double-encoded, so it needs to be double decoded
+          $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+          foreach ($errorsList as $err) {
+            $errors[] = $err;
+          }
+          if (sizeof($errors) == 0) {
+            $errors[] = "Bad input";
+          }
+        } else if($httpCode == 500) {
+          $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+          foreach ($errorsList as $err) {
+            $errors[] = $err;
+          }
+          if (sizeof($errors) == 0) {
+            $errors[] = "Server error";
+          }
+        } else if($httpCode == 200) {
+          if ($response == 0) {
+              $errors[] = "invalid session";
+              $this->auditlog("verify_otp error", "Update query affected 0 rows");
+          } else if($response > 0) {
+            $this->auditlog("verify_otp", "Success");
+          } else {
+            $errors[] = $response;
+            $this->debug("Unexpected result");
+            $this->auditlog("processEmailValidation", "Invalid request: $validationid");
+            return 0;
+          }
+        }
       }
+      return $response;
     }
 }
 
