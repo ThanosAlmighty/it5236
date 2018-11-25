@@ -2080,7 +2080,7 @@ class Application {
     }
 
     public function verify_otp($otp, $sessionid){
-
+      $success = 0;
       $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/verify_otp";
       $data = array(
         'otp'=>$otp,
@@ -2122,15 +2122,15 @@ class Application {
               $this->auditlog("verify_otp error", "Update query affected 0 rows");
           } else if($response > 0) {
             $this->auditlog("verify_otp", "Success");
+            $success = $response;
           } else {
             $errors[] = $response;
             $this->debug("Unexpected result");
             $this->auditlog("processEmailValidation", "Invalid request: $validationid");
-            return 0;
           }
         }
       }
-      return $response;
+      return $success;
     }
 }
 
