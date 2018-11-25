@@ -1789,37 +1789,65 @@ class Application {
         // Only proceed if there are no validation errors
         if (sizeof($errors) == 0) {
 
-            // Connect to the database
-            $dbh = $this->getConnection();
-
-            // Construct a SQL statement to perform the insert operation
-            $sql = "SELECT userid FROM passwordreset WHERE passwordresetid = :passwordresetid AND expires > NOW()";
-
-            // Run the SQL select and capture the result code
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindParam(":passwordresetid", $passwordresetid);
-            $result = $stmt->execute();
-
-            // If the query did not run successfully, add an error message to the list
-            if ($result === FALSE) {
-
-                $errors[] = "An unexpected error occurred updating your password.";
-                $this->auditlog("updatePassword", $stmt->errorInfo());
-                $this->debug($stmt->errorInfo());
-
-            } else if ($stmt->rowCount() == 1) {
-
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                $userid = $row['userid'];
-                $this->updateUserPassword($userid, $password, $errors);
-                $this->clearPasswordResetRecords($passwordresetid);
-
+            // Connect to the API
+            $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/updatePassword?passwordresetid=$passwordresetid";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k'));
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response  = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($response === FALSE) {
+              $errors[] = "An unexpected error occurred";
+              $this->debug('Server Error');
+              // In order to prevent recursive calling of audit log function
+              if (!$suppressLog){
+                  $this->auditlog("session error", "nothing returned from server");
+              }
             } else {
+              if($httpCode == 400) {
+                // JSON was double-encoded, so it needs to be double decoded
+                $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+                foreach ($errorsList as $err) {
+                  $errors[] = $err;
+                }
+                if (sizeof($errors) == 0) {
+                  $errors[] = "Bad input";
+                }
+              } else if($httpCode == 500) {
+                $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+                foreach ($errorsList as $err) {
+                  $errors[] = $err;
+                }
+                if (sizeof($errors) == 0) {
+                  $errors[] = "Server error";
+                }
+              } else if($httpCode == 200) {
+                // If the query did not run successfully, add an error message to the list
+                $userid_obj = json_decode($response);
+                if ($response === FALSE) {
 
-                $this->auditlog("updatePassword", "Bad request id: $passwordresetid");
+                    $errors[] = "An unexpected error occurred.";
+                    $this->debug('Query failed to execute');
+                    $this->auditlog("updatePassword error", "query failed to execute");
 
+                    // If no row returned then the thing does not exist in the database.
+                } else if(!empty($userid_obj)){
+                    $userid = $userid_obj[0]->userid;
+                    $this->updateUserPassword($userid, $password, $errors);
+                    $this->clearPasswordResetRecords($passwordresetid);
+                } else {
+
+                    $errors[] = "Bad passwordresetid";
+                    $this->auditlog("updatePassword", "bad passwordresetid: $passwordresetid");
+
+                    // If the query ran successfully and we got back a row, then the request succeeded
+                }
+              }
             }
-            $dbh = NULL;
+
         }
 
     }
