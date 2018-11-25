@@ -1912,27 +1912,53 @@ class Application {
             // Create a new session ID
             $attachmenttypeid = bin2hex(random_bytes(25));
 
-            // Connect to the database
-            $dbh = $this->getConnection();
-
-            // Construct a SQL statement to perform the insert operation
-            $sql = "INSERT INTO attachmenttypes (attachmenttypeid, name, extension) VALUES (:attachmenttypeid, :name, :extension)";
-
-            // Run the SQL select and capture the result code
-            $stmt = $dbh->prepare($sql);
-            $stmt->bindParam(":attachmenttypeid", $attachmenttypeid);
-            $stmt->bindParam(":name", $name);
-            $stmt->bindParam(":extension", strtolower($extension));
-            $result = $stmt->execute();
-            $dbh = NULL;
-            // If the query did not run successfully, add an error message to the list
-            if ($result === FALSE) {
-
-                $errors[] = "An unexpected error occurred";
-                $this->debug($stmt->errorInfo());
-                $this->auditlog("newAttachmentType error", $stmt->errorInfo());
-                return NULL;
-
+            $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/newAttachmentType";
+            $data = array(
+                      "attachmenttypeid"=> $attachmenttypeid,
+                      "name"=> $name,
+                      "extension"=> $extension
+                    );
+            $data_json = json_encode($data);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $response  = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($response === FALSE) {
+              $errors[] = "An unexpected failure occurred contacting the web service.";
+            } else {
+              if($httpCode == 400) {
+                // JSON was double-encoded, so it needs to be double decoded
+                $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+                foreach ($errorsList as $err) {
+                  $errors[] = $err;
+                }
+                if (sizeof($errors) == 0) {
+                  $errors[] = "Bad input";
+                }
+              } else if($httpCode == 500) {
+                $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+                foreach ($errorsList as $err) {
+                  $errors[] = $err;
+                }
+                if (sizeof($errors) == 0) {
+                  $errors[] = "Server error";
+                }
+              } else if($httpCode == 200) {
+                // If the query did not run successfully, add an error message to the list
+                if ($response === 0 || $response === FALSE) {
+                  $errors[] = "An unexpected error occurred adding the attachment type to the database.";
+                  $this->debug("could not add attachment type to database");
+                  $this->auditlog("newAttachmentType error", "Could not insert into database");
+                  return NULL;
+                } else if($response == 1) {
+                  $this->auditlog("addcomment", "success: $commentid");
+                }
+              }
             }
 
         } else {
