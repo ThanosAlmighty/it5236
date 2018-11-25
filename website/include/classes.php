@@ -1,12 +1,5 @@
 <?php
 
-if (file_exists(getcwd() . "/include/credentials.php")) {
-    require('credentials.php');
-} else {
-    echo "Application has not been configured. Copy and edit the credentials-sample.php file to credentials.php.";
-    exit();
-}
-
 class Application {
 
     public $debugMessages = [];
@@ -46,12 +39,6 @@ class Application {
     }
 
     public function auditlog($context, $message, $priority = 0, $userid = NULL){
-
-        // Declare an errors array
-        $errors = [];
-
-        // Connect to the database
-        $dbh = $this->getConnection();
 
         // If a user is logged in, get their userid
         if ($userid == NULL) {
