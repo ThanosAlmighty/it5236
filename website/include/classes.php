@@ -2006,44 +2006,73 @@ class Application {
           $errors[] = "Missing sessionid";
       }
       if(sizeof($errors) == 0){
-        $dbh = $this->getConnection();
 
         $otp = bin2hex(random_bytes(3));
 
-        // Construct a SQL statement to perform the insert operation
-        $sql = "INSERT INTO OTP (otp, sessionid, date) VALUES (:otp, :sessionid, NOW());";
-
-        // Run the SQL select and capture the result code
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindParam(":otp", $otp);
-        $stmt->bindParam(":sessionid", $sessionid);
-        $result = $stmt->execute();
-        $dbh  = NULL;
-        // If the query did not run successfully, add an error message to the list
-        if ($result === FALSE) {
-
-            $errors[] = "An unexpected error occurred";
-            $this->debug($stmt->errorInfo());
-            $this->auditlog("otp insert error", $stmt->errorInfo());
-            return FALSE;
+        $url = "https://s1zjxnaf6g.execute-api.us-east-1.amazonaws.com/default/create_otp";
+        $data = array(
+                  "otp"=> $otp,
+                  "sessionid"=> $sessionid
+                );
+        $data_json = json_encode($data);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'x-api-key: DUQ6bDCCCp6pNaYCJKpbl5hS5Yb0K4J710vrHp1k','Content-Length: ' . strlen($data_json)));
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response  = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($response === FALSE) {
+          $errors[] = "An unexpected failure occurred contacting the web service.";
         } else {
-          $this->auditlog("OTP", "Sending message to $email");
+          if($httpCode == 400) {
+            // JSON was double-encoded, so it needs to be double decoded
+            $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+            foreach ($errorsList as $err) {
+              $errors[] = $err;
+            }
+            if (sizeof($errors) == 0) {
+              $errors[] = "Bad input";
+            }
+          } else if($httpCode == 500) {
+            $errorsList = json_decode(json_decode($response)->errorMessage)->errors;
+            foreach ($errorsList as $err) {
+              $errors[] = $err;
+            }
+            if (sizeof($errors) == 0) {
+              $errors[] = "Server error";
+            }
+          } else if($httpCode == 200) {
+            // If the query did not run successfully, add an error message to the list
+            if ($response === 0 || $response === FALSE) {
+              $errors[] = "An unexpected error occurred adding otp to the database.";
+              $this->debug("could not add otp to database");
+              $this->auditlog("create_otp error", "Could not insert into database");
+              return FALSE;
+            } else if($response == 1) {
+              $this->auditlog("create_otp", "success: $otp");
+              $this->auditlog("OTP", "Sending message to $email");
 
-          // Send reset email
-          $pageLink = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-          $pageLink = str_replace("login.php", "otp.php", $pageLink);
-          $to = $email;
-          $subject = 'Login One Time Password';
-          $message = "A request has been made to login to https://jonathanhuling.me for this email address. ".
-              "If you did not make this request, please ignore this message. No other action is necessary. ".
-              "To confirm the login, please click the following link: $pageLink, or copy and paste it into your browser. Then, copy and paste the following One Time Password when prompted: $otp";
-          $headers = 'From: no-reply@jonathanhuling.me' . "\r\n";
+              // Send reset email
+              $pageLink = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+              $pageLink = str_replace("login.php", "otp.php", $pageLink);
+              $to = $email;
+              $subject = 'Login One Time Password';
+              $message = "A request has been made to login to https://jonathanhuling.me for this email address. ".
+                  "If you did not make this request, please ignore this message. No other action is necessary. ".
+                  "To confirm the login, please click the following link: $pageLink, or copy and paste it into your browser. Then, copy and paste the following One Time Password when prompted: $otp";
+              $headers = 'From: no-reply@jonathanhuling.me' . "\r\n";
 
-          mail($to, $subject, $message, $headers);
+              mail($to, $subject, $message, $headers);
 
-          $this->auditlog("OTP", "Message sent to $email");
-          return TRUE;
+              $this->auditlog("OTP", "Message sent to $email");
+              return TRUE;
+            }
+          }
         }
+        
       } else {
           $this->auditlog("missing otp parameters", $errors);
           return FALSE;
